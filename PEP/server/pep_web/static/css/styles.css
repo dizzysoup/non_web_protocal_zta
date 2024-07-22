@@ -1,0 +1,111 @@
+.log-debug { color: #6c757d; }    /* 灰色 */
+.log-info { color: #17a2b8; }     /* 青色 */
+.log-warning { color: #ffc107; }  /* 黄色 */
+.log-error { color: #dc3545; }    /* 红色 */
+.log-critical { color: #721c24; } /* 深红色 */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f8ff; /* 淺藍色背景，讓頁面更明亮 */
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #4CAF50;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+.form-control, .form-select {
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4CAF50;
+    box-shadow: none;
+}
+
+label {
+    color: #333;
+}
+
+input::placeholder, select::placeholder {
+    color: #999;
+}
+
+input, select {
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
