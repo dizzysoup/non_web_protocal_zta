@@ -1,0 +1,13 @@
+version: '3.6'
+
+services:
+  pdp_server:
+    build: 
+      context: ./pdp_server
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    restart: always      
+    volumes:
+      - ./pdp_server:/app
+      - ./pdp_server/node_modules:/app/node_modules
