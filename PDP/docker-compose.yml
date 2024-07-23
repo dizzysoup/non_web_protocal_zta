@@ -11,3 +11,14 @@ services:
     volumes:
       - ./pdp_server:/app
       - ./pdp_server/node_modules:/app/node_modules
+  
+  fido2_server:
+    build: 
+      context: ./fido2_server
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    restart: always      
+    volumes:
+      - ./fido2_server:/app
+      - ./fido2_server/node_modules:/app/node_modules
