@@ -8,8 +8,14 @@ credentials >> 憑證資料夾(local stored)
 sshgrpc_pb2
 
 ## register 
+註冊指令
 ```python
-    yunagent register --pep 192.168.71.3:50051 --user admin
+    yunagent register --pep 192.168.71.3 --user admin
+```
+登入指令
+```python
+    yunagent login --pep 192.168.71.3 --user admin
+
 ```
 
 ## Server 
