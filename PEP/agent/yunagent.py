@@ -2,6 +2,7 @@ from fido2.hid import CtapHidDevice
 from fido2.client import Fido2Client, WindowsClient, UserInteraction
 from fido2.server import Fido2Server
 from fido2.cose import ES256 
+from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor
 from gRPC.gRPC import CredentialClient , RPManagerClient
 from rdp_client import start_rdp
 from getpass import getpass
@@ -54,18 +55,6 @@ def store_credential_files(user_id, credential):
         json.dump(credential_data, f, indent=4)
     return credential_data
 
-# 憑證提取 by dict 
-def load_credential_files_by_dict():
-    # 從文件中加載 JSON 數據
-    with open('credentials/credential.json', 'r') as f:
-        credential_data = json.load(f)   
-    # 如果 credential_data 是一個字典，將其包裝成一個列表
-    if isinstance(credential_data, dict):
-        credential_data = [credential_data]
-    # 組裝為 AttestedCredentialData 的列表
-    credentials = [AttestedCredentialData.from_dict(data) for data in credential_data]
-    # 組裝為原始格式的字典
-    return credentials
 
 # 憑證提取 by json 
 def load_credential_files_by_json():
@@ -252,33 +241,48 @@ match args.command:
         username = args.user
 
         # 讀取憑證
-        credential = load_credential_files_by_dict()  
-            
+        credential = load_credential_files_by_json()  
         print(credential)
+        # 重新構造AttestedCredentialData 物件
+        credential_id_bytes = bytes.fromhex(credential["credential_id"])
+        aaguid_bytes = bytes.fromhex(credential["aaguid"])
+        public_key = {
+            int(k): (v if isinstance(v, int) else bytes.fromhex(v))
+            for k , v in credential["public_key"].items()
+        }
+        
+        Aattested_credential = AttestedCredentialData(Aaguid(aaguid_bytes), credential_id_bytes, public_key)
+        print([Aattested_credential])
+        
+        # 將 AttestedCredentialData 轉換為 PublicKeyCredentialDescriptor
+        credential_descriptor  = PublicKeyCredentialDescriptor(
+            type="public-key",
+            id=Aattested_credential.credential_id,
+            transports=["usb"],
+        )
         
         # Prepare parameters for getAssertion
-        request_options, state = server.authenticate_begin(credential,user_verification=uv)
+        request_options, state = server.authenticate_begin([credential_descriptor],user_verification=uv)
         
         # Authenticate the credential
         selection = client.get_assertion(request_options["publicKey"])
-        result = selection.get_response(0)  # There may be multiple responses, get the first.
-        
-
-        # 傳送憑證到server -- '192.168.71.3:50051'       
-        pep_address += ':50051' 
-        rpcclient = CredentialClient(pep_address)
-        rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
+        result = selection.get_response(0)  # There may be multiple responses, get the first.     
         
         # server 端驗證
         server.authenticate_complete(
             state,
-            [credential],
+            [Aattested_credential],
             result.credential_id,
             result.client_data,
             result.authenticator_data,
             result.signature,
         )
         print("Credential authenticated!")
+        
+        # 傳送憑證到server -- '192.168.71.3:50051'       
+        pep_address += ':50051' 
+        rpcclient = CredentialClient(pep_address)
+        rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
         
         update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
         
