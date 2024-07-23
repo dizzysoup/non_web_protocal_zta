@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/yunpep/SSHRDP_ZTA/PEP/server/index/myvenv"
+set -gx VIRTUAL_ENV "/home/yunpep/non_web_protocal_zta/PEP/server/index/myvenv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
