@@ -19,14 +19,29 @@ sshgrpc_pb2
 ```
 
 ## Server 
-
+Server 分成index版本(python) 及web版本(go)
+### index 
+建立虛擬環境
+```
+　　python -m venv myvenv
+```
 
 進入python虛擬環境
 ```python
     source myvenv/bin/activate
 ```
+進行安裝
+```
+    pip install -r requirement.txt
+```
 
-生成python code 
+執行index程式
+```
+   python main.py
+```
+
+gRPC 生成python code 
+
 ```python
     python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. credentials.proto
 ```
