@@ -204,37 +204,9 @@ match args.command:
         pep_address += ':50051'
         
 
-        # 傳送憑證到server -- '192.168.71.3:50051'        
+        # 傳送憑證到server -- ':50051'        
         client_cre = CredentialClient(pep_address)
         client_cre.send_credentials_to_server(user["id"], credentials)
-        
-        
-        ##  ============================= 以下是追加的，credential_data 目前無解 ### ============================================
-        print(credential_data)
-        request_options, state = server.authenticate_begin(credential_data,user_verification=uv)
-        
-        # Authenticate the credential
-        selection = client.get_assertion(request_options["publicKey"])
-        result = selection.get_response(0)  # There may be multiple responses, get the first.
-        
-
-        # 傳送憑證到server -- '192.168.71.3:50051'       
-       
-        rpcclient = CredentialClient(pep_address)
-        rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
-        
-        # server 端驗證
-        server.authenticate_complete(
-            state,
-            [credential_data],
-            result.credential_id,
-            result.client_data,
-            result.authenticator_data,
-            result.signature,
-        )
-        print("Credential authenticated!")
-        
-        update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
         
     case "login" : 
         pep_address = args.pep
