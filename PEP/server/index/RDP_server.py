@@ -9,11 +9,11 @@ logger = log_config.logger
 CLIENT_HOST = '192.168.71.1'
 
 #  Proxy Server
-PROXY_HOST = '192.168.71.10'
+PROXY_HOST = '192.168.50.98'
 PROXY_PORT = 3389
 
 # RDP Server
-RDP_SERVER_HOST = '192.168.71.8'
+RDP_SERVER_HOST = '192.168.50.83'
 RDP_SERVER_PORT = 3389
     
 # PDP 

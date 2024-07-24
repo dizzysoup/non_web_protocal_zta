@@ -101,11 +101,19 @@ class RPManagerService(credentials_pb2_grpc.RPManagerService):
             return credentials_pb2.RPCheckReply(is_registered = True, message = "資料存在" )
         else :
             return credentials_pb2.RPCheckReply(is_registered = False , message = "此IP或域名不儲存於AG中") 
-        
+
+
+class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
+    def RegisterBegin(self , request , context):
+        username = request.username
+        print(username)
+        return credentials_pb2.MsgResponse("success")
+    
 def start_gGPC_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     credentials_pb2_grpc.add_CredentialServiceServicer_to_server(CredentialServiceServicer(), server)
     credentials_pb2_grpc.add_RPManagerServiceServicer_to_server(RPManagerService(), server)
+    credentials_pb2_grpc.add_AuthenticationServiceServicer_to_server(AuthenticationService() , server)
     server.add_insecure_port('[::]:50051')
     logger.debug("gRPC Server started on port 50051")
     server.start()
