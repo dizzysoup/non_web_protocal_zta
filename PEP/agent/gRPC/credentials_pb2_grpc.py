@@ -264,3 +264,81 @@ class RPManagerService(object):
             timeout,
             metadata,
             _registered_method=True)
+
+
+class AuthenticationServiceStub(object):
+    """FIDO 註冊及認證相關服務
+    註冊 : client > username 
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.RegisterBegin = channel.unary_unary(
+                '/credentials.AuthenticationService/RegisterBegin',
+                request_serializer=credentials__pb2.MsgRequest.SerializeToString,
+                response_deserializer=credentials__pb2.MsgResponse.FromString,
+                _registered_method=True)
+
+
+class AuthenticationServiceServicer(object):
+    """FIDO 註冊及認證相關服務
+    註冊 : client > username 
+    """
+
+    def RegisterBegin(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_AuthenticationServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'RegisterBegin': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterBegin,
+                    request_deserializer=credentials__pb2.MsgRequest.FromString,
+                    response_serializer=credentials__pb2.MsgResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'credentials.AuthenticationService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('credentials.AuthenticationService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class AuthenticationService(object):
+    """FIDO 註冊及認證相關服務
+    註冊 : client > username 
+    """
+
+    @staticmethod
+    def RegisterBegin(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.AuthenticationService/RegisterBegin',
+            credentials__pb2.MsgRequest.SerializeToString,
+            credentials__pb2.MsgResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

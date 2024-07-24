@@ -3,7 +3,7 @@ from fido2.client import Fido2Client, WindowsClient, UserInteraction
 from fido2.server import Fido2Server
 from fido2.cose import ES256 
 from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor
-from gRPC.gRPC import CredentialClient , RPManagerClient
+from gRPC.gRPC import CredentialClient , RPManagerClient , AuthClient
 from rdp_client import start_rdp
 from getpass import getpass
 import sys
@@ -103,8 +103,8 @@ class AttestedCredentialData:
             int(k): bytes.fromhex(v) if isinstance(v, str) and all(c in '0123456789abcdef' for c in v) else v
             for k, v in data['public_key'].items()
         }
-        return AttestedCredentialData(aaguid, credential_id, public_key
-)
+        return AttestedCredentialData(aaguid, credential_id, public_key)
+    
 # Handle user interaction
 class CliInteraction(UserInteraction):
     def prompt_up(self):
@@ -174,8 +174,13 @@ credentials_data = ""
 match args.command:
     case "register" :
         pep_address = args.pep
+        pep_address += ':50051'
         username = args.user
         user = {"id": str(index).encode("utf-8") , "name": username}
+        
+        Authclient = AuthClient(pep_address)
+        name = Authclient.register_begin(username)
+        print(name)
         # Prepare parameters for makeCredential
         create_options, state = server.register_begin(
             user,
@@ -183,6 +188,7 @@ match args.command:
             user_verification=uv,
             authenticator_attachment="cross-platform",
         )       
+        print(create_options["publicKey"])
         # Create a credential
         result = client.make_credential(create_options["publicKey"])
         # Complete registration
@@ -201,7 +207,7 @@ match args.command:
         print("New credential created!")
         # 於本地端儲存憑證
         credentials = store_credential_files(user["id"], credentials)   
-        pep_address += ':50051'
+       
         
 
         # 傳送憑證到server -- ':50051'        
@@ -237,6 +243,7 @@ match args.command:
         request_options, state = server.authenticate_begin([credential_descriptor],user_verification=uv)
         
         # Authenticate the credential
+        # 這邊會開啟FIDO 2 認證畫面
         selection = client.get_assertion(request_options["publicKey"])
         result = selection.get_response(0)  # There may be multiple responses, get the first.     
         
@@ -252,11 +259,11 @@ match args.command:
         print("Credential authenticated!")
         
         # 傳送憑證到server -- '192.168.71.3:50051'       
-        pep_address += ':50051' 
-        rpcclient = CredentialClient(pep_address)
-        rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
+       # pep_address += ':50051' 
+       # rpcclient = CredentialClient(pep_address)
+       # rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
         
-        update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
+       # update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
         
     case "ssh":      
         with open('credentials/data.json', 'r') as f:

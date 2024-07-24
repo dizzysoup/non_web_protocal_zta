@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x63redentials.proto\x12\x0b\x63redentials\"H\n\tPublicKey\x12\x0b\n\x03kty\x18\x01 \x01(\x05\x12\x0b\n\x03\x61lg\x18\x02 \x01(\x05\x12\x0b\n\x03\x63rv\x18\x03 \x01(\x05\x12\t\n\x01x\x18\x04 \x01(\t\x12\t\n\x01y\x18\x05 \x01(\t\"\x1a\n\nMsgRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x9f\x01\n\x11\x43redentialRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12*\n\npublic_key\x18\x02 \x01(\x0b\x32\x16.credentials.PublicKey\x12\x12\n\nsign_count\x18\x03 \x01(\x05\x12\x12\n\ntransports\x18\x04 \x01(\t\x12\x0e\n\x06\x61\x61guid\x18\x05 \x01(\t\x12\x15\n\rcredential_id\x18\x06 \x01(\t\"\x1c\n\tLogoutMsg\x12\x0f\n\x07message\x18\x01 \x01(\t\"6\n\x0cRPCheckReply\x12\x15\n\ris_registered\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"%\n\x12\x43redentialResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\x83\x02\n\x11\x43redentialService\x12R\n\x0fStoreCredential\x12\x1e.credentials.CredentialRequest\x1a\x1f.credentials.CredentialResponse\x12W\n\x14SendCredentialToAuth\x12\x1e.credentials.CredentialRequest\x1a\x1f.credentials.CredentialResponse\x12\x41\n\x06Logout\x12\x16.credentials.LogoutMsg\x1a\x1f.credentials.CredentialResponse2]\n\x10RPManagerService\x12I\n\x13\x43heckRPRegistration\x12\x17.credentials.MsgRequest\x1a\x19.credentials.RPCheckReplyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x63redentials.proto\x12\x0b\x63redentials\"H\n\tPublicKey\x12\x0b\n\x03kty\x18\x01 \x01(\x05\x12\x0b\n\x03\x61lg\x18\x02 \x01(\x05\x12\x0b\n\x03\x63rv\x18\x03 \x01(\x05\x12\t\n\x01x\x18\x04 \x01(\t\x12\t\n\x01y\x18\x05 \x01(\t\"\x1b\n\x0bMsgResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1a\n\nMsgRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x9f\x01\n\x11\x43redentialRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12*\n\npublic_key\x18\x02 \x01(\x0b\x32\x16.credentials.PublicKey\x12\x12\n\nsign_count\x18\x03 \x01(\x05\x12\x12\n\ntransports\x18\x04 \x01(\t\x12\x0e\n\x06\x61\x61guid\x18\x05 \x01(\t\x12\x15\n\rcredential_id\x18\x06 \x01(\t\"\x1c\n\tLogoutMsg\x12\x0f\n\x07message\x18\x01 \x01(\t\"6\n\x0cRPCheckReply\x12\x15\n\ris_registered\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"%\n\x12\x43redentialResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\x83\x02\n\x11\x43redentialService\x12R\n\x0fStoreCredential\x12\x1e.credentials.CredentialRequest\x1a\x1f.credentials.CredentialResponse\x12W\n\x14SendCredentialToAuth\x12\x1e.credentials.CredentialRequest\x1a\x1f.credentials.CredentialResponse\x12\x41\n\x06Logout\x12\x16.credentials.LogoutMsg\x1a\x1f.credentials.CredentialResponse2]\n\x10RPManagerService\x12I\n\x13\x43heckRPRegistration\x12\x17.credentials.MsgRequest\x1a\x19.credentials.RPCheckReply2[\n\x15\x41uthenticationService\x12\x42\n\rRegisterBegin\x12\x17.credentials.MsgRequest\x1a\x18.credentials.MsgResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,18 +23,22 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_PUBLICKEY']._serialized_start=34
   _globals['_PUBLICKEY']._serialized_end=106
-  _globals['_MSGREQUEST']._serialized_start=108
-  _globals['_MSGREQUEST']._serialized_end=134
-  _globals['_CREDENTIALREQUEST']._serialized_start=137
-  _globals['_CREDENTIALREQUEST']._serialized_end=296
-  _globals['_LOGOUTMSG']._serialized_start=298
-  _globals['_LOGOUTMSG']._serialized_end=326
-  _globals['_RPCHECKREPLY']._serialized_start=328
-  _globals['_RPCHECKREPLY']._serialized_end=382
-  _globals['_CREDENTIALRESPONSE']._serialized_start=384
-  _globals['_CREDENTIALRESPONSE']._serialized_end=421
-  _globals['_CREDENTIALSERVICE']._serialized_start=424
-  _globals['_CREDENTIALSERVICE']._serialized_end=683
-  _globals['_RPMANAGERSERVICE']._serialized_start=685
-  _globals['_RPMANAGERSERVICE']._serialized_end=778
+  _globals['_MSGRESPONSE']._serialized_start=108
+  _globals['_MSGRESPONSE']._serialized_end=135
+  _globals['_MSGREQUEST']._serialized_start=137
+  _globals['_MSGREQUEST']._serialized_end=163
+  _globals['_CREDENTIALREQUEST']._serialized_start=166
+  _globals['_CREDENTIALREQUEST']._serialized_end=325
+  _globals['_LOGOUTMSG']._serialized_start=327
+  _globals['_LOGOUTMSG']._serialized_end=355
+  _globals['_RPCHECKREPLY']._serialized_start=357
+  _globals['_RPCHECKREPLY']._serialized_end=411
+  _globals['_CREDENTIALRESPONSE']._serialized_start=413
+  _globals['_CREDENTIALRESPONSE']._serialized_end=450
+  _globals['_CREDENTIALSERVICE']._serialized_start=453
+  _globals['_CREDENTIALSERVICE']._serialized_end=712
+  _globals['_RPMANAGERSERVICE']._serialized_start=714
+  _globals['_RPMANAGERSERVICE']._serialized_end=807
+  _globals['_AUTHENTICATIONSERVICE']._serialized_start=809
+  _globals['_AUTHENTICATIONSERVICE']._serialized_end=900
 # @@protoc_insertion_point(module_scope)

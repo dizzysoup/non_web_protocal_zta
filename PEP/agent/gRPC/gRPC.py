@@ -16,6 +16,18 @@ class RPManagerClient :
             response = stub.CheckRPRegistration(request)            
             return response
 
+class AuthClient :
+    def __init__(self, server_address):
+        self.server_address = server_address
+    
+    # 進行註冊
+    def register_begin(self , username):        
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.AuthenticationServiceStub(channel)            
+            request = credentials_pb2.MsgRequest(name=username)
+            response = stub.RegisterBegin(request)            
+            return response
+
 class CredentialClient : 
     def __init__(self, server_address):
         self.server_address = server_address
