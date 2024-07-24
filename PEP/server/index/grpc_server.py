@@ -105,9 +105,9 @@ class RPManagerService(credentials_pb2_grpc.RPManagerService):
 
 class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
     def RegisterBegin(self , request , context):
-        username = request.username
+        username = request.name
         print(username)
-        return credentials_pb2.MsgResponse("success")
+        return credentials_pb2.MsgResponse(name = "success")
     
 def start_gGPC_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
