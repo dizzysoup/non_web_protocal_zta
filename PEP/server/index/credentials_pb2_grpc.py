@@ -280,7 +280,17 @@ class AuthenticationServiceStub(object):
         self.RegisterBegin = channel.unary_unary(
                 '/credentials.AuthenticationService/RegisterBegin',
                 request_serializer=credentials__pb2.MsgRequest.SerializeToString,
-                response_deserializer=credentials__pb2.MsgResponse.FromString,
+                response_deserializer=credentials__pb2.PublicKeyResponse.FromString,
+                _registered_method=True)
+        self.SendClientData = channel.unary_unary(
+                '/credentials.AuthenticationService/SendClientData',
+                request_serializer=credentials__pb2.CollectedClientData.SerializeToString,
+                response_deserializer=credentials__pb2.Message.FromString,
+                _registered_method=True)
+        self.SendAttestationObject = channel.unary_unary(
+                '/credentials.AuthenticationService/SendAttestationObject',
+                request_serializer=credentials__pb2.AttestationObject.SerializeToString,
+                response_deserializer=credentials__pb2.Message.FromString,
                 _registered_method=True)
 
 
@@ -295,13 +305,35 @@ class AuthenticationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendClientData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendAttestationObject(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_AuthenticationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'RegisterBegin': grpc.unary_unary_rpc_method_handler(
                     servicer.RegisterBegin,
                     request_deserializer=credentials__pb2.MsgRequest.FromString,
-                    response_serializer=credentials__pb2.MsgResponse.SerializeToString,
+                    response_serializer=credentials__pb2.PublicKeyResponse.SerializeToString,
+            ),
+            'SendClientData': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendClientData,
+                    request_deserializer=credentials__pb2.CollectedClientData.FromString,
+                    response_serializer=credentials__pb2.Message.SerializeToString,
+            ),
+            'SendAttestationObject': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendAttestationObject,
+                    request_deserializer=credentials__pb2.AttestationObject.FromString,
+                    response_serializer=credentials__pb2.Message.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -332,7 +364,61 @@ class AuthenticationService(object):
             target,
             '/credentials.AuthenticationService/RegisterBegin',
             credentials__pb2.MsgRequest.SerializeToString,
-            credentials__pb2.MsgResponse.FromString,
+            credentials__pb2.PublicKeyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendClientData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.AuthenticationService/SendClientData',
+            credentials__pb2.CollectedClientData.SerializeToString,
+            credentials__pb2.Message.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendAttestationObject(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.AuthenticationService/SendAttestationObject',
+            credentials__pb2.AttestationObject.SerializeToString,
+            credentials__pb2.Message.FromString,
             options,
             channel_credentials,
             insecure,
