@@ -4,6 +4,7 @@ from fido2.server import Fido2Server
 from fido2.cose import ES256 
 from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor
 from gRPC.gRPC import CredentialClient , RPManagerClient , AuthClient
+from transfer import public_key_response_to_dict
 from rdp_client import start_rdp
 from getpass import getpass
 import sys
@@ -178,26 +179,33 @@ match args.command:
         username = args.user
         user = {"id": str(index).encode("utf-8") , "name": username}
         
+        # gRPC 傳輸
         Authclient = AuthClient(pep_address)
-        name = Authclient.register_begin(username)
-        print(name)
-        # Prepare parameters for makeCredential
+        public_key = Authclient.register_begin(username)
+       
+        # Prepare parameters for makeCredential 這是多的函式
         create_options, state = server.register_begin(
             user,
             resident_key_requirement="required",
             user_verification=uv,
             authenticator_attachment="cross-platform",
-        )       
-        print(create_options["publicKey"])
+          )   
+        
+          
         # Create a credential
-        result = client.make_credential(create_options["publicKey"])
+        result = client.make_credential(public_key_response_to_dict(public_key))
+        print("data is ")
+        print(result.attestation_object)
+        res = Authclient.SendClientData(result.client_data)
+        res = Authclient.SendAttestation(result.attestation_object , public_key.token )
+       
         # Complete registration
         auth_data = server.register_complete(
             state, result.client_data, result.attestation_object
         )
         
         credential_data = [auth_data.credential_data]
-        print(credential_data)
+        # print(credential_data)
         credentials = {
             "aaguid": credential_data[0].aaguid,
             "credential_id": credential_data[0].credential_id,

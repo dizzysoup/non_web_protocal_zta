@@ -4,6 +4,8 @@ from gRPC import credentials_pb2_grpc
 import json
 from fido2.cose import ES256 
 
+
+
 class RPManagerClient :
     def __init__(self, server_address):
         self.server_address = server_address
@@ -27,7 +29,72 @@ class AuthClient :
             request = credentials_pb2.MsgRequest(name=username)
             response = stub.RegisterBegin(request)            
             return response
+    # send ClientData
+    def SendClientData(self , clientdata):
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.AuthenticationServiceStub(channel)  
+            
+            data = credentials_pb2.CollectedClientData(
+                challenge = clientdata.challenge,
+                origin = clientdata.origin,
+                type = clientdata.type,
+                cross_origin = clientdata.cross_origin
+            )
+            response = stub.SendClientData(data)
+            return response
+    # send Attestation
+    def SendAttestation(self, attestation , state ):
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.AuthenticationServiceStub(channel)
+           
+            # Helper function to convert an int to bytes
+            def int_to_bytes(value):
+                if isinstance(value, int):
+                    if value >= 0:
+                        return value.to_bytes((value.bit_length() + 7) // 8 or 1, byteorder='big')
+                    else:
+                        return (-value).to_bytes((-value).bit_length() // 8 + 1, byteorder='big')
+                return value  # 如果已經是 bytes 類型，直接返回
 
+            # Creating the AAGUID object
+            aaguid = credentials_pb2.AAGUID(value=attestation.auth_data.credential_data.aaguid)
+
+            # Creating the AttestedCredentialData object
+            credential_data = credentials_pb2.AttestedCredentialData(
+                aaguid=aaguid,
+                credential_id=attestation.auth_data.credential_data.credential_id,
+                public_key={k: (v if isinstance(v, bytes) else int_to_bytes(v)) for k, v in attestation.auth_data.credential_data.public_key.items()}
+            )
+
+            # Creating the AuthenticatorData object
+            auth_data = credentials_pb2.AuthenticatorData(
+                rp_id_hash=attestation.auth_data.rp_id_hash,
+                flags=attestation.auth_data.flags,
+                counter=attestation.auth_data.counter,
+                credential_data=credential_data
+            )
+
+            # Handling the att_stmt field
+            att_stmt = {}
+            x5c = []
+            for k, v in attestation.att_stmt.items():
+                if k == 'x5c':
+                    x5c = v  # 保持 x5c 為 list[bytes]
+                else:
+                    att_stmt[k] = int_to_bytes(v)
+            
+            # Creating the AttestationObject
+            data = credentials_pb2.AttestationObject(
+                fmt=attestation.fmt,
+                auth_data=auth_data,
+                att_stmt=att_stmt,
+                x5c=x5c,
+                token=state
+            )
+
+           
+            response = stub.SendAttestationObject(data)
+            return response
 class CredentialClient : 
     def __init__(self, server_address):
         self.server_address = server_address
