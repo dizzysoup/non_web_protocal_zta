@@ -10,6 +10,8 @@ COPY . /app
 # 安裝 Flask
 RUN pip install flask
 
+RUN pip install -r requirements.pip
+
 # 暴露端口
 EXPOSE 5000
 
