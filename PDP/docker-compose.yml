@@ -1,5 +1,12 @@
 version: '3.6'
 
+networks:
+  my_custom_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+
 services:
   pdp_server:
     build: 
@@ -11,6 +18,9 @@ services:
     volumes:
       - ./pdp_server:/app
       - ./pdp_server/node_modules:/app/node_modules
+    networks:
+      my_custom_network:
+        ipv4_address: 172.18.0.4
   
   fido2_server:
     build: 
@@ -24,4 +34,27 @@ services:
     command: python app.py
     volumes:
       - ./fido2_server:/app
-     
+    networks:
+      my_custom_network:
+        ipv4_address: 172.18.0.5
+  
+  fido2_db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fido2
+      MYSQL_USER: fido2_user
+      MYSQL_PASSWORD: fido2_password
+    volumes:
+      - fido2_db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+    networks:
+      my_custom_network:
+        ipv4_address: 172.18.0.3
+
+volumes:
+  fido2_db_data:
+    driver: local 
