@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request , render_template
 from fido2.server import Fido2Server
 from fido2.webauthn import CollectedClientData , AttestationObject , AttestedCredentialData , AuthenticatorData
 from enum import Enum
@@ -27,7 +27,20 @@ logging.basicConfig(level=logging.INFO)
 # 建立一個根路由
 @app.route('/')
 def home():
-    return "Hello, Flask???"
+    cnx = mysql.connector.connect(**db_config)
+    cursor = cnx.cursor(dictionary=True)
+    
+    query = "SELECT *FROM credentialData" 
+    cursor.execute(query)
+    credentials = cursor.fetchall()
+    
+    cursor.close()
+    cnx.close()
+    
+    return render_template('credentials.html', credentials=credentials)
+    
+    
+    
 
 
 server = Fido2Server({"id": "example.com", "name": "Example RP"}, attestation="direct")
@@ -160,8 +173,8 @@ def post_complete_data():
     app.logger.info("Auth_data : %s" , auth_data.credential_data)
     aaguid = str(auth_data.credential_data.aaguid)
         
-    CHECK_CREDENTIAL = ('SELECT COUNT(*) FROM credentialData where aaguid = %s')
-    cursor.execute(CHECK_CREDENTIAL , (aaguid , ))
+    CHECK_CREDENTIAL = ('SELECT COUNT(*) FROM credentialData where aaguid = %s and username = %s')
+    cursor.execute(CHECK_CREDENTIAL , (aaguid , username , ))
     (count , ) = cursor.fetchone()
     
     if count == 0 :
@@ -176,13 +189,13 @@ def post_complete_data():
         app.logger.info("Inserted new credential data.")
 
         data = {
-            'message': 'success!',
-            'data': "Inserted new credential data."
+            'message': 'Success',
+            'data': "Register Success "
         }
         return jsonify(data)
     else :
         data = {
-            'message' : 'Failed ! ',
+            'message' : 'Failed',
             'data' : '使用者已被註冊'
         }
         app.logger.error("使用者已被註冊")

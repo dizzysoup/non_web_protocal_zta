@@ -18,14 +18,13 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE (username)
 ) ;
 
-
-
 -- 創建 credentialData 表
 CREATE TABLE IF NOT EXISTS credentialData (
-  aaguid CHAR(36) PRIMARY KEY,
+  aaguid CHAR(36),
   credential_id BLOB NOT NULL,
   public_key JSON NOT NULL,
   username VARCHAR(50),
+  PRIMARY KEY (aaguid , username ),
   CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 ) ;
 
