@@ -198,8 +198,12 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         }
         
         message = requests.post(url, data= json.dumps(payload), headers=headers).json()
+        if message == 'Failed':
+            logger.error(message['data'])
+        else :
+            logger.info(message['data'])
         print(message)
-        return credentials_pb2.Message(msg=" Received attestation object stored success")
+        return credentials_pb2.Message(msg=message['data'])
     
 def start_gGPC_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
