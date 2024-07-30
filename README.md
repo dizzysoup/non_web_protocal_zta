@@ -63,6 +63,18 @@ When you're ready to make this README your own, just edit this file and use the 
 
 後續待補
 
+## IP 對照表
+| Domain                   | IP                | PORT | NAME       | 描述                                  |
+|--------------------------|-------------------|------|------------|---------------------------------------|
+| de.yunpoc.edu.tw         | 192.168.50.76     |      | YUNPDP     | 非網頁式資源引擎 & FIDO2 Server (使用Docker 維護) |
+| ag.yunpoc.edu.tw         | 192.168.50.98     | 8080 | YUNPEP     | 非網頁存取隧道                        |
+| rpsite1.yunpoc.edu.tw    | 192.168.50.212    | 22   | LinuxRP    |                                       |
+| rpsite2.yunpoc.edu.tw    | 192.168.50.83     | 3389 | WindowsRP  |                                       |
+| ns.yunpoc.edu.tw         | 192.168.50.85     | 53   | DNSServer  |                                       |
+| gitlab.zta.com           | 192.168.50.245    | 80   | GitLab     | 所有组件程式碼                         |
+
+
+
 ## Badges
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
