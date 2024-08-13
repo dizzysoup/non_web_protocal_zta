@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- 創建 credentialData 表
 CREATE TABLE IF NOT EXISTS credentialData (
   aaguid CHAR(36),
-  credential_id BLOB NOT NULL,
+  credential_id VARCHAR(255) NOT NULL,
   public_key JSON NOT NULL,
   username VARCHAR(50),
   PRIMARY KEY (aaguid , username ),

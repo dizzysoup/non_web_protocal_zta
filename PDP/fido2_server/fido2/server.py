@@ -421,7 +421,7 @@ class Fido2Server:
             raise ValueError(
                 "User verification required, but user verified flag not set."
             )
-
+        
         for cred in credentials:
             if cred.credential_id == credential_id:
                 try:
@@ -430,7 +430,7 @@ class Fido2Server:
                     raise ValueError("Invalid signature.")
                 logger.info(f"Credential authenticated: {credential_id.hex()}")
                 return cred
-        raise ValueError("Unknown credential ID.")
+        raise ValueError(credential_id, cred.credential_id)
 
     @staticmethod
     def _make_internal_state(
