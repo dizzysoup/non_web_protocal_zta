@@ -29,6 +29,14 @@ class AuthClient :
             request = credentials_pb2.MsgRequest(name=username)
             response = stub.RegisterBegin(request)            
             return response
+        
+    def register_complete(self , token):
+        print(token)
+        with grpc.insecure_channel(self.server_address) as channel:
+            stub = credentials_pb2_grpc.AuthenticationServiceStub(channel)
+            request = credentials_pb2.JWTRequest(token=token)
+            response = stub.RegisterComplete(request)
+            return response
     # send ClientData
     def SendClientData(self , clientdata):
         with grpc.insecure_channel(self.server_address) as channel:

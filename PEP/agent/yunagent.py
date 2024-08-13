@@ -4,20 +4,19 @@ from fido2.server import Fido2Server
 from fido2.cose import ES256 
 from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor
 from gRPC.gRPC import CredentialClient , RPManagerClient , AuthClient
-from transfer import public_key_response_to_dict
+from transfer import public_key_response_to_dict, clientData_transfer, attestation_object_transfer
 from rdp_client import start_rdp
 from getpass import getpass
+from datetime import datetime, timezone, timedelta
+import jwt
 import sys
 import ctypes
 import subprocess
 import argparse
-import paramiko
-import time 
-import socket
-import select 
 import sys 
 import json 
 import os
+from dotenv import load_dotenv
 
 try:
     from fido2.pcsc import CtapPcscDevice
@@ -26,6 +25,9 @@ except ImportError:
 
 
 uv = "discouraged"
+
+load_dotenv()
+secret_key = os.getenv("SECRET_KEY")
 
 # 憑證儲存
 def store_credential_files(user_id, credential):
@@ -182,12 +184,23 @@ match args.command:
         # gRPC 傳輸
         Authclient = AuthClient(pep_address)
         public_key = Authclient.register_begin(username)
-          
+        
         # Create a credential
         result = client.make_credential(public_key_response_to_dict(public_key))
+        client_data = clientData_transfer(result.client_data)
+       
+        attestation_object = attestation_object_transfer(result.attestation_object)
         
-        res = Authclient.SendClientData(result.client_data)
-        res = Authclient.SendAttestation(result.attestation_object , public_key.token )
+        payload = {           
+            "client_data" : client_data,
+            "attestation_object" : attestation_object,
+            "token" : public_key.token,
+            "exp" :   datetime.now(timezone.utc) + timedelta(hours=1)  
+        }
+        
+        token = jwt.encode(payload, secret_key, algorithm="HS256")
+        
+        res = Authclient.register_complete(token)
         print(res)
         
     case "login" : 
