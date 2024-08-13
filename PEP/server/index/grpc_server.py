@@ -131,10 +131,37 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         self.clientdata = None
         self.attestationobject = None 
     
+    def LoginComplete(self , request , context):
+        token = request.token 
+        url = "http://de.yunpoc.edu.tw:3000/fido2/login/complete"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "token" : token
+        }
+        message = requests.post(url, json = payload, headers=headers).json()
+       
+        print(message)
+        return credentials_pb2.Message(msg=message['data'])
+    
+    def LoginBegin(self , request , context):
+        username = request.name 
+        url = "http://de.yunpoc.edu.tw:3000/fido2/login/begin"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "username" : username
+        }
+        response = requests.post(url, json = payload, headers=headers)
+        if response.status_code == 200 : 
+            token = response.json()['data']
+            print(token)
+            return credentials_pb2.JWTResponse(token=token)
+   
     def RegisterComplete(self , request , context):
         token = request.token
-        
-        
         url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
         headers = {
             "Content-Type": "application/json"
