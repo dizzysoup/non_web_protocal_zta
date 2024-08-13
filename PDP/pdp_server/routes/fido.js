@@ -17,7 +17,8 @@ router.post('/register/begin', function(req, res, next) {
 
   router.post('/register/complete', function(req, res, next) {
     const requestData = req.body 
-
+   
+    
     axios.post('http://de.yunpoc.edu.tw:5000/register/complete' , requestData)
       .then(response => {
         res.json(response.data);
@@ -26,6 +27,7 @@ router.post('/register/begin', function(req, res, next) {
         console.error("Error forward ");
         res.status(500).json({status: 'error' , error : error.message});
       })
+      
   });
 
   

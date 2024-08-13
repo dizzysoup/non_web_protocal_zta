@@ -1,17 +1,20 @@
 from flask import Flask, jsonify, request , render_template
 from fido2.server import Fido2Server
+from dotenv import load_dotenv
 from fido2.webauthn import CollectedClientData , AttestationObject , AttestedCredentialData , AuthenticatorData
 from enum import Enum
 import logging
 import base64
 import json
 import jwt
+import os
 from datetime import datetime , timedelta , timezone
 import mysql.connector
 from mysql.connector import errorcode
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
+load_dotenv()
 
 db_config = {
     'user': 'user',
@@ -23,6 +26,36 @@ db_config = {
 
 # 日誌紀錄器
 logging.basicConfig(level=logging.INFO)
+
+#測試
+@app.route('/fido2test', methods=['POST'])
+def handle_fido2_request():
+    data = request.get_json()
+    username = data.get('username')
+
+    cnx = mysql.connector.connect(**db_config)
+
+    if username:
+        with cnx.cursor() as cursor:
+            # 查詢用戶資料
+            sql = "SELECT AAGUID, CredentialID, PublicKey FROM Users WHERE Username = %s"
+            cursor.execute(sql, (username,))
+            result = cursor.fetchone()
+
+        if result:
+            # 返回用戶資料
+            aaguid, credential_id, public_key = result
+            user_data = {
+                "AAGUID": aaguid,
+                "CredentialID": credential_id,
+                "PublicKey": public_key
+            }
+            print(f"FIDO2 伺服器檢索到使用者數據: {username}")
+            return jsonify(user_data), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+    else:
+        return jsonify({"error": "Username is required"}), 400
 
 # 建立一個根路由
 @app.route('/')
@@ -106,14 +139,19 @@ def post_data():
 
 # POST 請求 註冊 complete
 @app.route('/register/complete', methods=['POST'])
-def post_complete_data():
-    posted_data  = request.get_json()
-
-    client_data = posted_data["client_data"]
+def post_complete_data():   
+    posted_data  = request.get_json()    
+    agent_secret_key = os.getenv("AGENT_SECRET_KEY")
+    
+    data = jwt.decode(posted_data["token"], agent_secret_key , algorithms=['HS256'])
+    
+    app.logger.info("Decode Token is %s" , data)
+    
+    client_data = data["client_data"]
     # app.logger.info('Client_data： %s',client_data)
-    attestation_object  = posted_data["attestation_object"]
+    attestation_object  = data["attestation_object"]
 
-    token = posted_data['token']
+    token = data['token']
     # app.logger.info("Token: %s" , posted_data['token'] )
     state , username = verify_token(token)
     app.logger.info('UserName : %s' , username )
@@ -138,17 +176,22 @@ def post_complete_data():
         client_data['origin'],
         client_data['cross_origin'] == 'True'
     )
-
+    public_key = attestation_object['auth_data']['credential_data']['public_key']
+   
+    public_key = {
+            1: base64.urlsafe_b64decode(public_key.get('1')) if isinstance(public_key.get('1'), str) else public_key.get('1'),
+            3: base64.urlsafe_b64decode(public_key.get('3')) if isinstance(public_key.get('3'), str) else public_key.get('3'),
+            -1 : base64.urlsafe_b64decode(public_key.get('-1')) if isinstance(public_key.get('-1'), str) else public_key.get('-1'),
+            -2 : base64.urlsafe_b64decode(public_key.get('-2')) if isinstance(public_key.get('1'), str) else public_key.get('-2'),
+            -3 : base64.urlsafe_b64decode(public_key.get('-3')) if isinstance(public_key.get('-3'), str) else public_key.get('-3'),
+    } 
+    
+    
+    
     credential_data = AttestedCredentialData.create(
         aaguid = base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['aaguid']),
         credential_id = base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['credential_id']),
-        public_key = {
-            1 : base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['public_key']['1']),
-            3 :  base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['public_key']['3']),
-            -2 : base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['public_key']['-2']),
-            -1 : base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['public_key']['-1']),
-            -3 : base64.urlsafe_b64decode(attestation_object['auth_data']['credential_data']['public_key']['-3']),
-        }
+        public_key = {k: v for k, v in public_key.items() if v is not None}
     )
 
 
@@ -158,17 +201,18 @@ def post_complete_data():
         attestation_object['auth_data']['counter'],
         credential_data
     )
-
+    att_stmt = attestation_object['att_stmt']
+    
     attestation_object = AttestationObject.create(
         attestation_object['fmt'],
         auth_data,
         {
             'sig' : base64.urlsafe_b64decode(attestation_object['att_stmt']['sig']),
-            'alg' : base64.urlsafe_b64decode(attestation_object['att_stmt']['alg']),
-            'x5c' : [base64.b64decode(cert) for cert in attestation_object['x5c']]
+            'alg' : base64.urlsafe_b64decode(att_stmt.get('alg')) if isinstance(att_stmt.get('alg'), str) else att_stmt.get('alg'),
+            'x5c' : base64.urlsafe_b64decode(att_stmt.get('x5c')) if isinstance(att_stmt.get('x5c'), str) else att_stmt.get('x5c')
         }
     )
-
+   
     auth_data = server.register_complete(state , client_data , attestation_object)
     app.logger.info("Auth_data : %s" , auth_data.credential_data)
     aaguid = str(auth_data.credential_data.aaguid)
