@@ -282,14 +282,19 @@ class AuthenticationServiceStub(object):
                 request_serializer=credentials__pb2.MsgRequest.SerializeToString,
                 response_deserializer=credentials__pb2.PublicKeyResponse.FromString,
                 _registered_method=True)
-        self.SendClientData = channel.unary_unary(
-                '/credentials.AuthenticationService/SendClientData',
-                request_serializer=credentials__pb2.CollectedClientData.SerializeToString,
+        self.RegisterComplete = channel.unary_unary(
+                '/credentials.AuthenticationService/RegisterComplete',
+                request_serializer=credentials__pb2.JWTRequest.SerializeToString,
                 response_deserializer=credentials__pb2.Message.FromString,
                 _registered_method=True)
-        self.SendAttestationObject = channel.unary_unary(
-                '/credentials.AuthenticationService/SendAttestationObject',
-                request_serializer=credentials__pb2.AttestationObject.SerializeToString,
+        self.LoginBegin = channel.unary_unary(
+                '/credentials.AuthenticationService/LoginBegin',
+                request_serializer=credentials__pb2.MsgRequest.SerializeToString,
+                response_deserializer=credentials__pb2.JWTResponse.FromString,
+                _registered_method=True)
+        self.LoginComplete = channel.unary_unary(
+                '/credentials.AuthenticationService/LoginComplete',
+                request_serializer=credentials__pb2.JWTRequest.SerializeToString,
                 response_deserializer=credentials__pb2.Message.FromString,
                 _registered_method=True)
 
@@ -305,13 +310,19 @@ class AuthenticationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SendClientData(self, request, context):
+    def RegisterComplete(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SendAttestationObject(self, request, context):
+    def LoginBegin(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def LoginComplete(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -325,14 +336,19 @@ def add_AuthenticationServiceServicer_to_server(servicer, server):
                     request_deserializer=credentials__pb2.MsgRequest.FromString,
                     response_serializer=credentials__pb2.PublicKeyResponse.SerializeToString,
             ),
-            'SendClientData': grpc.unary_unary_rpc_method_handler(
-                    servicer.SendClientData,
-                    request_deserializer=credentials__pb2.CollectedClientData.FromString,
+            'RegisterComplete': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterComplete,
+                    request_deserializer=credentials__pb2.JWTRequest.FromString,
                     response_serializer=credentials__pb2.Message.SerializeToString,
             ),
-            'SendAttestationObject': grpc.unary_unary_rpc_method_handler(
-                    servicer.SendAttestationObject,
-                    request_deserializer=credentials__pb2.AttestationObject.FromString,
+            'LoginBegin': grpc.unary_unary_rpc_method_handler(
+                    servicer.LoginBegin,
+                    request_deserializer=credentials__pb2.MsgRequest.FromString,
+                    response_serializer=credentials__pb2.JWTResponse.SerializeToString,
+            ),
+            'LoginComplete': grpc.unary_unary_rpc_method_handler(
+                    servicer.LoginComplete,
+                    request_deserializer=credentials__pb2.JWTRequest.FromString,
                     response_serializer=credentials__pb2.Message.SerializeToString,
             ),
     }
@@ -376,7 +392,7 @@ class AuthenticationService(object):
             _registered_method=True)
 
     @staticmethod
-    def SendClientData(request,
+    def RegisterComplete(request,
             target,
             options=(),
             channel_credentials=None,
@@ -389,8 +405,8 @@ class AuthenticationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/credentials.AuthenticationService/SendClientData',
-            credentials__pb2.CollectedClientData.SerializeToString,
+            '/credentials.AuthenticationService/RegisterComplete',
+            credentials__pb2.JWTRequest.SerializeToString,
             credentials__pb2.Message.FromString,
             options,
             channel_credentials,
@@ -403,7 +419,7 @@ class AuthenticationService(object):
             _registered_method=True)
 
     @staticmethod
-    def SendAttestationObject(request,
+    def LoginBegin(request,
             target,
             options=(),
             channel_credentials=None,
@@ -416,9 +432,111 @@ class AuthenticationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/credentials.AuthenticationService/SendAttestationObject',
-            credentials__pb2.AttestationObject.SerializeToString,
+            '/credentials.AuthenticationService/LoginBegin',
+            credentials__pb2.MsgRequest.SerializeToString,
+            credentials__pb2.JWTResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def LoginComplete(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.AuthenticationService/LoginComplete',
+            credentials__pb2.JWTRequest.SerializeToString,
             credentials__pb2.Message.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
+class grpctestServiceStub(object):
+    """測試
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.HelloWorld = channel.unary_unary(
+                '/credentials.grpctestService/HelloWorld',
+                request_serializer=credentials__pb2.HelloRequest.SerializeToString,
+                response_deserializer=credentials__pb2.HelloResponse.FromString,
+                _registered_method=True)
+
+
+class grpctestServiceServicer(object):
+    """測試
+    """
+
+    def HelloWorld(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_grpctestServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'HelloWorld': grpc.unary_unary_rpc_method_handler(
+                    servicer.HelloWorld,
+                    request_deserializer=credentials__pb2.HelloRequest.FromString,
+                    response_serializer=credentials__pb2.HelloResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'credentials.grpctestService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('credentials.grpctestService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class grpctestService(object):
+    """測試
+    """
+
+    @staticmethod
+    def HelloWorld(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/credentials.grpctestService/HelloWorld',
+            credentials__pb2.HelloRequest.SerializeToString,
+            credentials__pb2.HelloResponse.FromString,
             options,
             channel_credentials,
             insecure,

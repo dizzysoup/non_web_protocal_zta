@@ -114,12 +114,14 @@ print("CREDENTIAL DATA:", auth_data.credential_data)
 # Prepare parameters for getAssertion
 request_options, state = server.authenticate_begin(credentials, user_verification=uv)
 
+
 # Authenticate the credential
 result = client.get_assertion(request_options["publicKey"])
 
 # Only one cred in allowCredentials, only one response.
 result = result.get_response(0)
-
+print()
+print(result.credential_id)
 # Complete authenticator
 server.authenticate_complete(
     state,
