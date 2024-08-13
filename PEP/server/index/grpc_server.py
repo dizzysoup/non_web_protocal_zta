@@ -23,25 +23,24 @@ db_settings = {
 
 #測試
 class grpctestServiceServicer(credentials_pb2_grpc.grpctestServiceServicer):
-    
     def HelloWorld(self, request, context):
         username = request.username
-        print(f"收到使用者名稱: {username}")
-        status_code, response_data = send_to_pdp(username)
-        if status_code == 200:
-            return credentials_pb2.HelloResponse(reply=f"PEP 收到的數據: {response_data}")
-        else:
-            return credentials_pb2.HelloResponse(reply="從 FIDO2 伺服器獲取數據時發生錯誤")
+        print(f"Received username: {username}")
+        
+        # 發送資料給 PDP
+        status_code, response_text = self.send_to_pdp(username)
+        
+        final_reply = f"Response from PEP: received\nResponse from PDP: {response_text}"
+        return credentials_pb2.HelloResponse(reply=final_reply)
 
-def send_to_pdp(username):
-    url = "http://192.168.50.76:3000/users"
-    data = {"username": username}
-    try:
-        response = requests.post(url, json=data)
-        return response.status_code, response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"向 PDP 傳送數據時發生錯誤: {e}")
-        return None, str(e)
+    def send_to_pdp(self, username):
+        url = "http://192.168.50.76:3000/users"
+        data = {"username": username}
+        try:
+            response = requests.post(url, json=data)
+            return response.status_code, response.text
+        except requests.exceptions.RequestException as e:
+            return None, str(e)
 
 
 class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
@@ -148,7 +147,7 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         print(message)
         
         
-        return credentials_pb2.Message(msg="gRPC測試")
+        return credentials_pb2.Message(msg=message['data'])
     
     def RegisterBegin(self , request , context):
         url = "http://de.yunpoc.edu.tw:3000/fido2/register/begin"
