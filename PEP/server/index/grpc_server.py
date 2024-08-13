@@ -4,7 +4,7 @@ import credentials_pb2
 import credentials_pb2_grpc
 import requests
 import json
-import pymysql
+import pymysql 
 import json
 import log_config
 import requests
@@ -20,6 +20,29 @@ db_settings = {
     "db": "PROXYDB",
     "charset": "utf8"
 }
+
+#測試
+class grpctestServiceServicer(credentials_pb2_grpc.grpctestServiceServicer):
+    
+    def HelloWorld(self, request, context):
+        username = request.username
+        print(f"收到使用者名稱: {username}")
+        status_code, response_data = send_to_pdp(username)
+        if status_code == 200:
+            return credentials_pb2.HelloResponse(reply=f"PEP 收到的數據: {response_data}")
+        else:
+            return credentials_pb2.HelloResponse(reply="從 FIDO2 伺服器獲取數據時發生錯誤")
+
+def send_to_pdp(username):
+    url = "http://192.168.50.76:3000/users"
+    data = {"username": username}
+    try:
+        response = requests.post(url, json=data)
+        return response.status_code, response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"向 PDP 傳送數據時發生錯誤: {e}")
+        return None, str(e)
+
 
 class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
     def StoreCredential(self, request, context):
@@ -104,12 +127,28 @@ class RPManagerService(credentials_pb2_grpc.RPManagerService):
         else :
             return credentials_pb2.RPCheckReply(is_registered = False , message = "此IP或域名不儲存於AG中") 
 
-
-
 class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
     def __init__(self):
         self.clientdata = None
         self.attestationobject = None 
+    
+    def RegisterComplete(self , request , context):
+        token = request.token
+        
+        
+        url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "token" : token
+        }
+        print(payload)
+        message = requests.post(url, json = payload, headers=headers).json()
+        print(message)
+        
+        
+        return credentials_pb2.Message(msg="gRPC測試")
     
     def RegisterBegin(self , request , context):
         url = "http://de.yunpoc.edu.tw:3000/fido2/register/begin"
@@ -149,71 +188,21 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
             response.pubKeyCredParams.add(alg=param['alg'], type=param['type'])
        
         return response
-    def SendClientData(self , request , context):
-        self.clientdata = request
-        return credentials_pb2.Message(msg=" client data stored success")
     
-    def SendAttestationObject(self , request , context):
-        url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
-        self.attestationobject = request
-        
-        client_data_dict = {
-            "type": self.clientdata.type,
-            "challenge": base64.b64encode(self.clientdata.challenge).decode('utf-8'),
-            "origin": self.clientdata.origin,
-            "cross_origin": "False"
-        }
-        
-        credential_data_dict = {
-            "aaguid": base64.b64encode(request.auth_data.credential_data.aaguid.value).decode('utf-8'),
-            "credential_id": base64.b64encode(request.auth_data.credential_data.credential_id).decode('utf-8'),
-            "public_key": {str(k): base64.b64encode(v).decode('utf-8') if isinstance(v, bytes) else v for k, v in request.auth_data.credential_data.public_key.items()}
-        }
-        
-        auth_data_dict = {
-            "rp_id_hash": base64.b64encode(request.auth_data.rp_id_hash).decode('utf-8'),
-            "flags": request.auth_data.flags,
-            "counter": request.auth_data.counter,
-            "credential_data": credential_data_dict
-        }
-        
-        att_stmt_dict = {k: base64.b64encode(v).decode('utf-8') if isinstance(v, bytes) else v for k, v in request.att_stmt.items()}
-
-        attestation_object_dict = {
-            "fmt": request.fmt,
-            "auth_data": auth_data_dict,
-            "att_stmt": att_stmt_dict,
-            "x5c": [base64.b64encode(x).decode('utf-8') for x in request.x5c]
-        }
-        
-        
-        payload = {
-               "client_data": client_data_dict,
-               "attestation_object": attestation_object_dict,
-               "token" : request.token
-        }
-        print(payload)
-        headers = {
-            "Content-Type": "application/json"
-        }
-        
-        message = requests.post(url, data= json.dumps(payload), headers=headers).json()
-        if message == 'Failed':
-            logger.error(message['data'])
-        else :
-            logger.info(message['data'])
-        print(message)
-        return credentials_pb2.Message(msg=message['data'])
+    
     
 def start_gGPC_server():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     credentials_pb2_grpc.add_CredentialServiceServicer_to_server(CredentialServiceServicer(), server)
     credentials_pb2_grpc.add_RPManagerServiceServicer_to_server(RPManagerService(), server)
+    credentials_pb2_grpc.add_grpctestServiceServicer_to_server(grpctestServiceServicer(), server)
     credentials_pb2_grpc.add_AuthenticationServiceServicer_to_server(AuthenticationService() , server)
     server.add_insecure_port('[::]:50051')
     logger.debug("gRPC Server started on port 50051")
     server.start()
     print('Server started on port 50051.')
     server.wait_for_termination()
+
+
 
 
