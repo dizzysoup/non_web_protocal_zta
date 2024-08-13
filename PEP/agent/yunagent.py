@@ -2,9 +2,9 @@ from fido2.hid import CtapHidDevice
 from fido2.client import Fido2Client, WindowsClient, UserInteraction
 from fido2.server import Fido2Server
 from fido2.cose import ES256 
-from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor
+from fido2.webauthn import AttestedCredentialData,Aaguid, PublicKeyCredentialDescriptor, PublicKeyCredentialRequestOptions , PublicKeyCredentialType , AuthenticatorTransport
 from gRPC.gRPC import CredentialClient , RPManagerClient , AuthClient
-from transfer import public_key_response_to_dict, clientData_transfer, attestation_object_transfer
+from transfer import public_key_response_to_dict, clientData_transfer, attestation_object_transfer,authenticator_assertion_response_transfer
 from rdp_client import start_rdp
 from getpass import getpass
 from datetime import datetime, timezone, timedelta
@@ -16,6 +16,7 @@ import argparse
 import sys 
 import json 
 import os
+import base64
 from dotenv import load_dotenv
 
 try:
@@ -206,45 +207,53 @@ match args.command:
     case "login" : 
         pep_address = args.pep
         username = args.user
-
+        pep_address += ':50051'
+        
+         # gRPC 傳輸
+        Authclient = AuthClient(pep_address)
+        public_key = Authclient.login_begin(username)
+        
+        
         # 讀取憑證
-        credential = load_credential_files_by_json()  
+        credential = jwt.decode(public_key.token, secret_key, algorithms=["HS256"])
         print(credential)
-        # 重新構造AttestedCredentialData 物件
-        credential_id_bytes = bytes.fromhex(credential["credential_id"])
-        aaguid_bytes = bytes.fromhex(credential["aaguid"])
-        public_key = {
-            int(k): (v if isinstance(v, int) else bytes.fromhex(v))
-            for k , v in credential["public_key"].items()
+        if 'challenge' in credential['public_key']:
+            challenge_base64 = credential['public_key']['challenge']
+            credential['public_key']['challenge'] = base64.b64decode(challenge_base64)
+        
+        for cred in credential['public_key'].get('allowCredentials', []):
+            if 'id' in cred and isinstance(cred['id'], list):
+                cred['id'] = base64.b64decode(cred['id'][0]) if cred['id'] else None
+            if 'type' in cred and isinstance(cred['type'], str):
+                cred['type'] = PublicKeyCredentialType.PUBLIC_KEY
+            if 'transports' in cred and isinstance(cred['transports'], list):
+                cred['transports'] = [AuthenticatorTransport.USB if transport == 'usb' else transport for transport in cred['transports']]
+       
+        options = PublicKeyCredentialRequestOptions(
+            challenge=credential['public_key']['challenge'],
+            timeout=credential['public_key'].get('timeout'),
+            rp_id=credential['public_key'].get('rpId'),
+            allow_credentials=PublicKeyCredentialDescriptor._deserialize_list(credential['public_key'].get('allowCredentials')),
+            user_verification=credential['public_key'].get('userVerification'),
+            extensions=credential['public_key'].get('extensions')
+        )
+        
+        
+        # 這邊會開啟FIDO 2 認證畫面
+        selection = client.get_assertion(options)
+        result = selection.get_response(0)
+        
+        result_json = authenticator_assertion_response_transfer(result)
+        payload = {           
+            "username" : username,
+            "payload" : result_json,
+            "state" : credential["token"],
+            "exp" :   datetime.now(timezone.utc) + timedelta(hours=1)  
         }
         
-        Aattested_credential = AttestedCredentialData(Aaguid(aaguid_bytes), credential_id_bytes, public_key)
-        print([Aattested_credential])
-        
-        # 將 AttestedCredentialData 轉換為 PublicKeyCredentialDescriptor
-        credential_descriptor  = PublicKeyCredentialDescriptor(
-            type="public-key",
-            id=Aattested_credential.credential_id,
-            transports=["usb"],
-        )
-        
-        # Prepare parameters for getAssertion
-        request_options, state = server.authenticate_begin([credential_descriptor],user_verification=uv)
-        
-        # Authenticate the credential
-        # 這邊會開啟FIDO 2 認證畫面
-        selection = client.get_assertion(request_options["publicKey"])
-        result = selection.get_response(0)  # There may be multiple responses, get the first.     
-        
-        # server 端驗證
-        server.authenticate_complete(
-            state,
-            [Aattested_credential],
-            result.credential_id,
-            result.client_data,
-            result.authenticator_data,
-            result.signature,
-        )
+        payload = jwt.encode(payload , secret_key, algorithm="HS256")
+        print(payload)   
+        res = Authclient.login_complete(payload)
         print("Credential authenticated!")
         
         # 傳送憑證到server -- '192.168.71.3:50051'       

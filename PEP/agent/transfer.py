@@ -1,4 +1,5 @@
 import base64
+import json
 
 # register begin 使用到的公鑰格式
 def public_key_response_to_dict(response):
@@ -59,4 +60,28 @@ def attestation_object_transfer(response):
         
     }
             
+def authenticator_assertion_response_transfer(response):
+    client_data = {
+        "type": response.client_data.type,
+        "challenge": base64.b64encode(response.client_data.challenge).decode('utf-8'),
+        "origin": response.client_data.origin,
+        "cross_origin": response.client_data.cross_origin
+    }
+    authenticator_data = {
+        "rp_id_hash": base64.b64encode(response.authenticator_data.rp_id_hash).decode('utf-8'),
+        "flags": response.authenticator_data.flags,
+        "counter": response.authenticator_data.counter,
+        "credential_data": None if response.authenticator_data.credential_data is None else base64.b64encode(response.authenticator_data.credential_data).decode('utf-8'),
+        "extensions": response.authenticator_data.extensions
+    }
     
+    json_response = {
+        "client_data": client_data,
+        "authenticator_data": authenticator_data,
+        "signature": base64.b64encode(response.signature).decode('utf-8'),
+        "user_handle": None if response.user_handle is None else base64.b64encode(response.user_handle).decode('utf-8'),
+        "credential_id": base64.b64encode(response.credential_id).decode('utf-8'),
+        "extension_results": response.extension_results
+    }
+    
+    return json_response
