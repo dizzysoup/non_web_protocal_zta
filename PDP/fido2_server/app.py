@@ -5,14 +5,15 @@ from fido2.webauthn import CollectedClientData , AttestationObject , AttestedCre
 import fido2.cbor as cbor
 from transfer import credential_descriptor_transfer ,credential_descriptor_transfer_2
 from enum import Enum
-import logging
 import base64
 import json
 import jwt
 import os
+import log_config
 from datetime import datetime , timedelta , timezone
 import mysql.connector
 
+logger = log_config.logger
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -26,8 +27,8 @@ db_config = {
     'raise_on_warnings': True
 }
 
-# 日誌紀錄器
-logging.basicConfig(level=logging.INFO)
+
+
 
 #測試
 @app.route('/fido2test', methods=['POST'])
@@ -150,7 +151,7 @@ def post_data():
     index = 0
     posted_data  = request.get_json()
     username = posted_data["username"]
-    app.logger.info("Statue is : %s" , username )
+    logger.info("Statue is : %s" , username )
     user = {"id" : str(index).encode("utf-8") , "name" : username }
     index = index + 1
     create_options, state = server.register_begin(
@@ -159,7 +160,7 @@ def post_data():
             user_verification=uv,
             authenticator_attachment="cross-platform",
     )
-    app.logger.info("Statue is : %s" , state )
+    logger.info("Statue is : %s" , state )
     token = generate_token(state, username)
 
     public_key_json = json.dumps(create_options["publicKey"], default=custom_serializer, indent=4)
@@ -169,7 +170,7 @@ def post_data():
         'public_key': public_key_json,
         'token' : token
     }
-    app.logger.info('Request Data : ' , data )
+    logger.info('Request Data : ' , data )
     return jsonify(data)    
 
 # POST 請求 註冊 complete
@@ -180,7 +181,7 @@ def post_complete_data():
     
     data = jwt.decode(posted_data["token"], agent_secret_key , algorithms=['HS256'])
     
-    app.logger.info("Decode Token is %s" , data)
+    logger.info("Decode Token is %s" , data)
     
     client_data = data["client_data"]
     # app.logger.info('Client_data： %s',client_data)
@@ -189,7 +190,7 @@ def post_complete_data():
     token = data['token']
     # app.logger.info("Token: %s" , posted_data['token'] )
     state , username = verify_token(token)
-    app.logger.info('UserName : %s' , username )
+    logger.info('UserName : %s' , username )
 
     # checked user
     cnx = mysql.connector.connect(**db_config)
@@ -202,7 +203,7 @@ def post_complete_data():
         INSERT_USER = ("INSERT INTO users (username, email) VALUES ( %s , %s )")
         cursor.execute(INSERT_USER, (username,'example@gmail.com',))
         cnx.commit()
-        app.logger.info("Inserted new users.")
+        logger.info("Inserted new users.")
     
 
     client_data = CollectedClientData.create(
@@ -246,7 +247,7 @@ def post_complete_data():
     )
    
     auth_data = server.register_complete(state , client_data , attestation_object)
-    app.logger.info("Auth_data : %s" , auth_data.credential_data)
+    logger.info("Auth_data : %s" , auth_data.credential_data)
     aaguid = str(auth_data.credential_data.aaguid)
         
     CHECK_CREDENTIAL = ('SELECT COUNT(*) FROM credentialData where aaguid = %s and username = %s')
@@ -259,7 +260,7 @@ def post_complete_data():
         ADD_CREDENTIAL = ("INSERT INTO credentialData (aaguid , credential_id , public_key,username) VALUES (%s , %s ,%s , %s )")    
         cursor.execute(ADD_CREDENTIAL , (aaguid, base64.b64encode(auth_data.credential_data.credential_id).decode("utf-8") , public_keys , username))
         cnx.commit()    
-        app.logger.info("Inserted new credential data.")
+        logger.info("Inserted new credential data.")
 
         data = {
             'message': 'Success',
@@ -271,7 +272,7 @@ def post_complete_data():
             'message' : 'Failed',
             'data' : '使用者已被註冊'
         }
-        app.logger.error("使用者已被註冊")
+        logger.error("使用者已被註冊")
         return jsonify(data)
 
 class PublicKeyCredentialType(Enum):
@@ -284,7 +285,7 @@ def login_begin():
     agent_secret_key = os.getenv("AGENT_SECRET_KEY")    
     credential_descriptor = credential_descriptor_transfer(app ,username ) # 從資料庫讀取credentials
     request_options , state = server.authenticate_begin([credential_descriptor], user_verification=uv)    
-    app.logger.info("STATE : %s" , state)
+    logger.info("STATE : %s" , state)
     types_list = [ cred["type"].value for cred in request_options["publicKey"]['allowCredentials']]
     id_list = [ base64.b64encode(cred["id"]).decode('utf-8') for cred in request_options["publicKey"]['allowCredentials']]
     transports_list = [
@@ -309,15 +310,15 @@ def login_begin():
         "public_key" : public_key,
         "token" : state 
     }
-    app.logger.info('payload : %s ' , payload )
+    logger.info('payload : %s ' , payload )
     data = jwt.encode(payload,agent_secret_key , algorithm='HS256' )
-    app.logger.info('data : %s' , data)
+    logger.info('data : %s' , data)
     
     data = {
         'message': 'success!',
         'data' : data
     }
-    app.logger.info('Username : %s ' , username )
+    logger.info('Username : %s ' , username )
     
     return jsonify(data) ,200
 
@@ -326,11 +327,11 @@ def login_begin():
 @app.route('/login/complete', methods=['POST'])
 def login_complete():
     posted_data  = request.get_json()
-    app.logger.info("Receiveeee : %s" , posted_data) 
+    logger.info("Receiveeee : %s" , posted_data) 
     agent_secret_key = os.getenv("AGENT_SECRET_KEY")
     
     data = jwt.decode(posted_data["token"] ,agent_secret_key, algorithms="HS256")
-    app.logger.info("Receive : %s" , data["payload"]) 
+    logger.info("Receive : %s" , data["payload"]) 
 
     
     credentials = credential_descriptor_transfer_2(app ,data["username"] )
@@ -365,7 +366,7 @@ def login_complete():
     )
     
     signature = base64.b64decode(data["payload"]["signature"])
-    app.logger.info("credentials : %s" , credentials)
+    logger.info("credentials : %s" , credentials)
     res = server.authenticate_complete(
         state , 
         [credentials],
@@ -374,7 +375,7 @@ def login_complete():
         authenticator_data,
         signature
     )
-    app.logger.info("Res : %s" , res)
+    logger.info("Res : %s" , res)
     data = {
         'message': 'success!'  ,
         'data' : '登入成功!'
