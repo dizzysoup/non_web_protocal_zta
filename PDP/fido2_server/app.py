@@ -132,7 +132,7 @@ def delete_user(user_name):
     
     cursor.close()
     cnx.close()
-    return redirect("http://de.yunpoc.edu.tw:5000/")
+    return redirect("http://192.168.50.76:5000/")
 
 
 @app.route('/delete/<credential_id>', methods=['POST'])
@@ -150,7 +150,7 @@ def post_data():
     index = 0
     posted_data  = request.get_json()
     username = posted_data["username"]
-
+    app.logger.info("Statue is : %s" , username )
     user = {"id" : str(index).encode("utf-8") , "name" : username }
     index = index + 1
     create_options, state = server.register_begin(
