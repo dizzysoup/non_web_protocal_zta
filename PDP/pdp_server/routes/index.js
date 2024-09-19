@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.redirect('http://de.yunpoc.edu.tw:5000')
+  res.redirect('https://de.yuntech.poc.com:5443')
 });
 
 router.post('/', function(req, res, next) {

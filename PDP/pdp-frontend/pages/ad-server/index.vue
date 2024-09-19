@@ -3,33 +3,38 @@
       <CHeading mb="4">AD-Server</CHeading>
       <CText mb="4">This is the AD-Server page.</CText>
   
-      <!-- IP 輸入框 -->
       <CFormControl mb="4">
-        <CFormLabel>IP Address</CFormLabel>
-        <CInput v-model="ip" placeholder="Enter IP Address" />
+        <CFormLabel>IP Address : 192.168.50.243</CFormLabel>        
       </CFormControl>
   
-      <!-- Username 輸入框 -->
       <CFormControl mb="4">
         <CFormLabel>Username</CFormLabel>
         <CInput v-model="username" placeholder="Enter Username" />
       </CFormControl>
-  
-      <!-- 提交按鈕 -->
-      <CButton colorScheme="teal" @click="handleSubmit">Test Connect</CButton>
+
+      <CButton colorScheme="teal" @click="handleSubmit">LDAP Test Connect</CButton>
     </CBox>
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import { ref  } from 'vue';
+  import axios from 'axios';
+  const username = ref('');
   
   // 定義狀態
-  const ip = ref('')
-  const username = ref('')
-  
-  // 點擊處理函數
   const handleSubmit = () => {
-    alert('Success')
+    
+    axios.post('http://192.168.50.76:3000/fido2/check/ADuser', { username: username.value })
+      .then(response => {
+        console.log('Response:', response.data);
+        alert('Success');
+      })
+      .catch(error => {
+        console.error('There was an error!', error);
+        alert('Failed');
+      });
   }
+
+
   </script>
   

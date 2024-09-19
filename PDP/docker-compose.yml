@@ -8,12 +8,23 @@ networks:
         - subnet: 172.18.0.0/16
 
 services:
+  pdp_frontend:
+    build : 
+      context: ./pdp-frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3000
+    restart: always
+    volumes : 
+      - ./pdp-frontend:/app
+      - ./pdp-frontend/node_modules:/app/node_modules
+
   pdp_server:
     build: 
       context: ./pdp_server
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - 3443:3443
     restart: always      
     volumes:
       - ./pdp_server:/app
@@ -27,7 +38,7 @@ services:
       context: ./fido2_server
       dockerfile: Dockerfile
     ports:
-      - 5000:5000
+      - 5443:5443
     restart: always
     environment:
       - FLASK_ENV=development      

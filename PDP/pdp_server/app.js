@@ -3,44 +3,55 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import createError from 'http-errors';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import fidoRouter from './routes/fido.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-var app = express();
+const app = express();
 
-// view engine setup
-app.set('views', path.join(path.dirname(new URL(import.meta.url).pathname), 'views'));
+// 設定 CORS
+app.use(cors({
+  origin: 'https://ag.yuntech.poc.com:8080',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
+
+// 設置 view engine
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// 中間件
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(path.dirname(new URL(import.meta.url).pathname), 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
+// 路由
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/fido2' , fidoRouter)
+app.use('/fido2', fidoRouter);
 
-// catch 404 and forward to error handler
+// 捕獲 404 並轉交到錯誤處理器
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// 錯誤處理
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+  // 只在開發環境下提供詳細錯誤訊息
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // 顯示錯誤頁面
   res.status(err.status || 500);
   res.render('error');
 });
 
 export default app;
-
-
