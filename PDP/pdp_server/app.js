@@ -1,44 +1,63 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import createError from 'http-errors';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var fidoRouter = require('./routes/fido');
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import fidoRouter from './routes/fido.js';
+import RPRouter from './routes/rp.js';
 
-var app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// view engine setup
+const app = express();
+
+
+// 設置 view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// 設定 CORS 選項
+const corsOptions = {
+  origin: ['https://ag.yuntech.poc.com:8080','https://ag.yuntech.poc.com'], // 允許的來源，可以是多個
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 允許的 HTTP 方法
+  allowedHeaders: ['Content-Type', 'Authorization'], // 允許的 HTTP 頭部
+  credentials: true, // 如果需要傳遞憑證（如 Cookies），設置為 true
+};
+
+app.use(cors(corsOptions));
+
+// 中間件
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 路由
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/fido2' , fidoRouter)
+app.use('/fido2', fidoRouter);
+app.use('/rp' , RPRouter);
 
-// catch 404 and forward to error handler
+// 捕獲 404 並轉交到錯誤處理器
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// 錯誤處理
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+  // 只在開發環境下提供詳細錯誤訊息
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // 顯示錯誤頁面
   res.status(err.status || 500);
   res.render('error');
 });
 
-module.exports = app;
-
+export default app;

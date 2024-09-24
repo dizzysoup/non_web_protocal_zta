@@ -1,7 +1,11 @@
 from fido2.webauthn import  AttestedCredentialData ,Aaguid , PublicKeyCredentialDescriptor
 import mysql.connector
 import json 
+
 import base64
+
+
+
 db_config = {
     'user': 'user',
     'password': 'password',

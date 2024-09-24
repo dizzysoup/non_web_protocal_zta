@@ -13,7 +13,7 @@ RUN pip install flask
 RUN pip install -r requirements.pip
 
 # 暴露端口
-EXPOSE 5000
+EXPOSE 5443
 
 # 設定容器啟動後運行的命令
 CMD ["python", "app.py"]

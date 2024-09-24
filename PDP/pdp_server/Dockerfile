@@ -17,7 +17,7 @@ RUN npm install -g nodemon
 
 
 # 暴露應用程式的端口
-EXPOSE 3000
+EXPOSE 3443
 
 # 使用 nodemon 啟動應用程式
 CMD ["nodemon", "./bin/www"]

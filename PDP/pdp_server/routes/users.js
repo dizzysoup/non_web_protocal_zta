@@ -1,6 +1,7 @@
-var express = require('express');
+import express from 'express';
+import axios from 'axios';
 var router = express.Router();
-const axios = require('axios');
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -33,4 +34,4 @@ router.post('/', async (req, res) => {
   }
   });
 
-module.exports = router;
+export default router ; 

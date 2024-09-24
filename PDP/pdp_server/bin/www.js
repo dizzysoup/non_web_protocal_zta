@@ -4,22 +4,34 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('pdp-server:server');
-var http = require('http');
+import app from '../app.js';
+import debug from 'debug';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '3443');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, '../cert/server.key')),  // 替換為你實際的私鑰文件路徑
+  cert: fs.readFileSync(path.join(__dirname, '../cert/server.crt')), // 替換為你實際的證書文件路徑
+};
+
+var server = https.createServer( sslOptions,app);
 
 /**
  * Listen on provided port, on all network interfaces.
