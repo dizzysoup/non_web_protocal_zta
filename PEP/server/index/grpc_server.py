@@ -106,6 +106,7 @@ class CredentialServiceServicer(credentials_pb2_grpc.CredentialServiceServicer):
 class RPManagerService(credentials_pb2_grpc.RPManagerService):
     def CheckRPRegistration(self , request , context):
         conn = pymysql.connect(**db_settings)
+        print("進行RDP連線..")
         print(request.name)
         with conn.cursor() as cursor:
             command = "SELECT COUNT(*)  FROM proxy_hosts where Source = %s or Destination = %s "
@@ -117,7 +118,7 @@ class RPManagerService(credentials_pb2_grpc.RPManagerService):
         if result == 1 :
             data =  {
                 "host" : request.name,
-                "ip" : "192.168.71.4"
+                "ip" : "192.168.50.83"
             }
             
             with open('chk.json', 'w', encoding='utf-8') as json_file:
@@ -133,7 +134,7 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
     
     def LoginComplete(self , request , context):
         token = request.token 
-        url = "http://de.yunpoc.edu.tw:3000/fido2/login/complete"
+        url = "http://192.168.50.76:3000/fido2/login/complete"
         headers = {
             "Content-Type": "application/json"
         }
@@ -146,8 +147,10 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         return credentials_pb2.Message(msg=message['data'])
     
     def LoginBegin(self , request , context):
+        
         username = request.name 
         url = "http://de.yunpoc.edu.tw:3000/fido2/login/begin"
+        url = "http://192.168.50.76:3000/fido2/login/begin"
         headers = {
             "Content-Type": "application/json"
         }
@@ -155,6 +158,8 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
             "username" : username
         }
         response = requests.post(url, json = payload, headers=headers)
+        print(response)
+        
         if response.status_code == 200 : 
             token = response.json()['data']
             print(token)
@@ -162,7 +167,8 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
    
     def RegisterComplete(self , request , context):
         token = request.token
-        url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
+        # url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
+        url = "http://192.168.50.76:3000/fido2/register/complete"
         headers = {
             "Content-Type": "application/json"
         }
@@ -177,7 +183,7 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         return credentials_pb2.Message(msg=message['data'])
     
     def RegisterBegin(self , request , context):
-        url = "http://de.yunpoc.edu.tw:3000/fido2/register/begin"
+        url = "http://192.168.50.76:3000/fido2/register/begin"
         payload = {
             "username" : request.name 
         }

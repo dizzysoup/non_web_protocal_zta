@@ -1,0 +1,24 @@
+services:
+  pep_web:
+    build: 
+      context: ./pep_web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=production
+    volumes:
+      - ./pep_web:/app
+    restart: always
+
+  nginxproxyserver:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+ 

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首頁</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* 設置導航欄樣式 */
+        .navbar {
+            background-color: #007bff; /* 藍色背景 */
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between; /* 左右對齊 */
+            align-items: center;
+            position: sticky;
+            top: 0;
+            margin: 0;
+        }
+
+        .navbar .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        /* 搜尋欄樣式 */
+        .navbar .search-bar {
+            position: relative;
+            display: flex;
+        }
+
+        .navbar .search-bar input[type="text"] {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            width: 200px;
+        }
+
+        .navbar .search-bar button {
+            background: none;
+            border: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: gray;
+            font-size: 1.2rem;
+        }
+
+
+
+        h1 {
+            font-size: 1.6rem; /* 調整字體大小 */
+            text-align: left; /* 設置靠左對齊 */
+            margin-left: 26px; /* 增加左邊距離，避免緊貼邊緣 */
+            margin-bottom: 10px;
+        }
+
+        /* 調整 <h2> 標題的間距 */
+        h2 {
+            font-size: 2 rem; /* 調整字體大小 */
+            text-align: left; /* 設置靠左對齊 */
+            margin-left: 25px;
+            margin-bottom: 10px;
+        }
+
+        /* 使用 Grid 佈局來控制卡片的排列 */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 設定兩個等寬的區塊，讓內容並排顯示 */
+            gap: 25px; /* 區塊之間的間距 */
+            max-width: 100%; /* 設定最大寬度，讓區塊不會太分散 1500px */
+            margin: left; /* 讓容器置中 auto */
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加陰影，讓卡片更有層次感 */
+        }
+
+        .card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px; /* 圖片下方增加間距 */
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px; /* 卡片標題與內容間的間距 */
+        }
+
+        .card button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px; /* 按鈕圓角 */
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .card button:hover {
+            background-color: #0056b3; /* 滑鼠懸停時按鈕顏色改變 */
+        }
+
+        /* 全局按鈕樣式 */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 藍色導航欄 -->
+    <header class="navbar">
+        <div class="logo">My Resources</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search...">
+            <button>&#128269;</button>
+        </div>
+    </header>
+    
+    <h1>Available Services</h1>
+    
+   
+    <!-- 修正容器的標籤，使之正確包含所有卡片元素 -->
+    <div class="container">
+        <div class="card">
+            <img src="/static/img/ssh.png" alt="SSH Icon">
+            <h3>YUNTECH_SSH Server</h3>
+            <button onclick="window.location.href='ssh'">Connect</button>
+        </div>
+        
+        <div class="card">
+            <img src="/static/img/rdp.png" alt="Windows Icon">
+            <h3>YUNTECH_Remote Desktop</h3>
+            <button onclick="window.location.href='ssh/windows'">Connect</button>
+        </div>
+        <div class="card">
+            <img src="/static/img/ssh.png" alt="SSH Icon">
+            <h3>TEST_SSH Server</h3>
+            <button onclick="window.location.href='ssh'">Connect</button>
+        </div>
+        
+        <div class="card">
+            <img src="/static/img/rdp.png" alt="Windows Icon">
+            <h3>TEST_Remote Desktop</h3>
+            <button onclick="window.location.href='ssh/windows'">Connect</button>
+        </div>
+
+        <div class="card">
+            <img src="/static/img/RP.png" alt="Windows Icon">
+            <h3>RP</h3>
+            <button onclick="window.location.href='ssh/windows'">Connect</button>
+        </div>
+
+
+    </div>
+
+</body>
+</html>

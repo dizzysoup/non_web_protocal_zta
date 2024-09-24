@@ -1,0 +1,22 @@
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+req_extensions      = v3_req
+prompt              = no
+
+[ req_distinguished_name ]
+C            = TW                  # 國家代碼 (台灣)
+ST           = Yunlin              # 省/市
+L            = Douliu              # 城市
+O            = Your Organization   # 組織名稱
+OU           = IT Department       # 部門
+CN           = ag.yuntech.poc.com  # Common Name，主域名
+
+[ v3_req ]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = yuntech.poc.com         # 主要域名
+DNS.2 = ag.yuntech.poc.com      # 次要域名

@@ -1,0 +1,19 @@
+# 使用 Go 的官方映像作為建置階段
+FROM golang:1.23 AS builder
+
+# 設置工作目錄
+WORKDIR /app
+
+# 複製 go.mod 和 go.sum 並下載依賴
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 複製程式碼並編譯
+COPY . .
+RUN go build -o main .  # 將應用程式編譯為名為 main 的可執行檔
+
+# 設置容器啟動時的命令
+CMD ["./main"]
+
+# 暴露應用的埠口
+EXPOSE 8080
