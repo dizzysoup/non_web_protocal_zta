@@ -2,11 +2,14 @@ import express from 'express';
 import axios from 'axios';
 import ldap from 'ldapjs';
 import winlogger from '../components/log.js';
+import https from 'https';
 var router = express.Router();
 
 const ldapOptions = {
   url: 'ldap://192.168.50.243', 
 };
+
+
 
 const bindDN = 'CN=Administrator,CN=Users,DC=yuntech,DC=poc,DC=com'; 
 const bindPassword = '1qaz@WSX3edc'; 
@@ -71,18 +74,26 @@ router.post('/check/ADuser', function(req, res, next) {
   });
 });
 
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false, // 忽略自簽名憑證錯誤
+});
+
+
 // 註冊流程
 router.post('/register/begin', function(req, res, next) {
   winlogger.info("使用者發起註冊請求，重定向至Fido Server");
-  const requestData = req.body;
+  const requestData = req.body;4
   winlogger.info("request data: " + JSON.stringify(requestData, null, 2));
   const username = requestData.username;
+
+  
 
   // 首先檢查 username 是否存在於 AD 中
   checkUsernameInAD(username, (err, exists) => {
     if (err) {
       winlogger.error('Error checking username in AD: ' + err.message);
-      return res.status(500).json({ status: 'error', error: 'AD query failed' });
+      return res.status(404).json({ status: 'error', error: 'AD query failed' });
     }
 
     if (!exists) {
@@ -93,15 +104,15 @@ router.post('/register/begin', function(req, res, next) {
     // 如果 username 存在於 AD 中，繼續請求
     winlogger.info('Username exists in AD, proceeding to send request to Fido Server');
 
-    axios.post('http://192.168.50.76:5000/register/begin', requestData)
+    axios.post('https://fido2_server:5443/register/begin', requestData , {httpsAgent})
       .then(response => {
         winlogger.info("Fido Server 回傳 " + response.data);
-        res.json(response.data);
+        res.status(200).json(response.data);
       })
       .catch(error => {
-        console.error("Error forward ");
+        console.error(error.message);
         winlogger.error(error.message);
-        res.status(500).json({ status: 'error', error: error.message });
+        res.status(404).json({ status: 'error', error: error.message });
       });
   });
 });
@@ -109,16 +120,17 @@ router.post('/register/begin', function(req, res, next) {
 router.post('/register/complete', function(req, res, next) {
     winlogger.info("使用者完成FIDO Key 指紋辨識，正在重定向至FIDO Server 進行註冊完成..")
     const requestData = req.body 
-   
     
-    axios.post('http://192.168.50.76:5000/register/complete' , requestData)
+  
+    
+    axios.post('https://fido2_server:5443/register/complete' , requestData , {httpsAgent})
       .then(response => {
         winlogger.info("註冊成功：" + response.data) ;
         res.json(response.data);
       })
       .catch(error => {
         winlogger.error("註冊失敗" + error.message);
-        console.error("Error forward ");
+        console.error(error.message);
         res.status(500).json({status: 'error' , error : error.message});
       })
 });

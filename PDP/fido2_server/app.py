@@ -10,6 +10,7 @@ import json
 import jwt
 import os
 import log_config
+import secrets
 from datetime import datetime , timedelta , timezone
 import mysql.connector
 
@@ -22,7 +23,7 @@ load_dotenv()
 db_config = {
     'user': 'user',
     'password': 'password',
-    'host': '172.18.0.3',
+    'host': 'fido2_db',
     'database': 'fido2',
     'raise_on_warnings': True
 }
@@ -152,7 +153,9 @@ def post_data():
     posted_data  = request.get_json()
     username = posted_data["username"]
     logger.info("Statue is : %s" , username )
-    user = {"id" : str(index).encode("utf-8") , "name" : username }
+    user_id_bytes = secrets.token_bytes(32)   
+    
+    user = {"id" : user_id_bytes , "name" : username }
     index = index + 1
     create_options, state = server.register_begin(
             user ,
@@ -170,7 +173,7 @@ def post_data():
         'public_key': public_key_json,
         'token' : token
     }
-    logger.info('Request Data : ' , data )
+    logger.info('Request Data :  %s' , data )
     return jsonify(data)    
 
 # POST 請求 註冊 complete
@@ -181,12 +184,17 @@ def post_complete_data():
     
     data = jwt.decode(posted_data["token"], agent_secret_key , algorithms=['HS256'])
     
+    logger.info("Decode  %s" , posted_data)
+    
     logger.info("Decode Token is %s" , data)
     
     client_data = data["client_data"]
-    # app.logger.info('Client_data： %s',client_data)
-    attestation_object  = data["attestation_object"]
-
+    
+    client_data = json.loads(base64.b64decode(client_data))
+    
+    
+    attestation_object  = base64.b64decode(data["attestation_object"])
+    app.logger.info('attestation_object %s',attestation_object)
     token = data['token']
     # app.logger.info("Token: %s" , posted_data['token'] )
     state , username = verify_token(token)
@@ -208,9 +216,9 @@ def post_complete_data():
 
     client_data = CollectedClientData.create(
         client_data['type'],
-        base64.urlsafe_b64decode(client_data['challenge']),
+        client_data['challenge'],
         client_data['origin'],
-        client_data['cross_origin'] == 'True'
+        client_data['crossOrigin'] == 'True'
     )
     public_key = attestation_object['auth_data']['credential_data']['public_key']
    

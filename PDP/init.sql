@@ -11,7 +11,7 @@ USE fido2;
 
 -- 創建使用者表
 CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT PRIMARY KEY, -- user 識別唯一值
   username VARCHAR(50) NOT NULL,
   email VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,6 +27,21 @@ CREATE TABLE IF NOT EXISTS credentialData (
   PRIMARY KEY (aaguid , username ),
   CONSTRAINT fk_username FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 ) ;
+
+-- RP 表
+CREATE TABLE IF NOT EXISTS RP_Computers (
+  id INT AUTO_INCREMENT PRIMARY KEY, -- 唯一識別每台電腦的ID
+  alias_name VARCHAR(255) NOT NULL , -- 電腦的別名
+  ip_address VARCHAR(45) NOT NULL ,  -- IP 地址
+  domain_name VARCHAR(255) NULL, -- 電腦的域名
+  port ENUM('3389','22') NOT NULL , -- 連接埠號 (如 3389, 22 等)
+  os_type ENUM('Linux' , 'Windows') NOT NULL , -- 作業系統類型
+  description TEXT NULL , -- 敘述
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
 
 
 

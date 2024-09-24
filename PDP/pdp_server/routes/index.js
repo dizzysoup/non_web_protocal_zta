@@ -1,8 +1,15 @@
 import express from "express";
+import pool from "../components/db.js";
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
+  try {
+    const [rows] = await pool.query('SELECT 1 ');
+    console.log(rows);
+  }catch (error){
+    console.error('Error fetching data:', error.message);
+  }
   res.redirect('https://de.yuntech.poc.com:5443')
 });
 
