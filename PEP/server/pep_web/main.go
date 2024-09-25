@@ -17,7 +17,9 @@ func main() {
 	r.Static("/static", "./static")
 
 	// 註冊路由
+
 	view.ProxyRegisterRoutes(r)
+	view.HTMLtRoutes(r)
 	view.WebauthRegisterRoutes(r)
 	view.SSHRoutes(r)
 

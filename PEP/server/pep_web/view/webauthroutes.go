@@ -31,16 +31,6 @@ func WebauthRegisterRoutes(r *gin.Engine) {
 		log.Fatalf("failed to initialize webauthn: %v", err)
 	}
 
-	r.GET("/", func(c *gin.Context) {
-		var proxyHosts []ProxyHost
-
-		c.HTML(http.StatusOK, "register.html", gin.H{
-			"proxyHosts": proxyHosts,
-		})
-	})
-
-	r.POST("/register/begin", BeginRegistration)
-	r.POST("/register/complete", CompleteRegistration)
 }
 
 func BeginRegistration(c *gin.Context) {
@@ -49,7 +39,7 @@ func BeginRegistration(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input, username is required"})
 		return
 	}
-	url := "https://de.yuntech.poc.com:3443/fido2/register/begin"
+	url := "https://de.yuntech.poc.com:3443/webfido/register/begin"
 	method := "POST"
 	payload, _ := json.Marshal(data)
 	tr := &http.Transport{
@@ -107,7 +97,7 @@ func CompleteRegistration(c *gin.Context) {
 	fmt.Println(tokenString)
 
 	// post to de
-	url := "https://de.yuntech.poc.com:3443/fido2/register/complete"
+	url := "https://de.yuntech.poc.com:3443/webfido/register/complete"
 	method := "POST"
 
 	tokenPayload := map[string]string{

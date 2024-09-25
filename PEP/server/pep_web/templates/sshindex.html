@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>首頁</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 5px;
+            margin-top: 0px;
         }
 
-        /* 設置導航欄樣式 */
+        
         .navbar {
-            background-color: #007bff; /* 藍色背景 */
+            background-color: #19212A; 
             color: white;
-            padding: 20px;
+            padding: 18px;
             display: flex;
             justify-content: space-between; /* 左右對齊 */
             align-items: center;
@@ -29,33 +30,56 @@
             font-weight: bold;
         }
 
-        /* 搜尋欄樣式 */
-        .navbar .search-bar {
+       
+        .user-menu {
             position: relative;
-            display: flex;
-        }
-
-        .navbar .search-bar input[type="text"] {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 20px;
-            font-size: 1rem;
-            width: 200px;
-        }
-
-        .navbar .search-bar button {
+            /* top: 10px; left: 10px; */
+            display: inline-block;
+          }
+          
+          .user-icon {
+            cursor: pointer;
+            width: 50px; /* 根據需要調整大小 */
+          }
+          
+          .user-dropdown {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+          }
+          
+          .user-menu:hover .user-dropdown {
+            margin: 5% -200%;
+            display: block;
+          }
+          
+          .user-info p {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+          }
+          
+          .user-info button {
             background: none;
             border: none;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: gray;
-            font-size: 1.2rem;
-        }
-
-
+            color: #408080;
+            padding: 12px 16px;
+            text-align: auto;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            border-top: 1px solid #ccc; /* 可選 */
+          }
+          
+          .user-info button:hover {
+            background-color: #f1f1f1; /* 淺灰色 */
+          }
+          
+        
 
         h1 {
             font-size: 1.6rem; /* 調整字體大小 */
@@ -88,7 +112,7 @@
             border-radius: 8px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加陰影，讓卡片更有層次感 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 陰影 */
         }
 
         .card img {
@@ -105,7 +129,7 @@
         .card button {
             padding: 10px 20px;
             border: none;
-            background-color: #007bff;
+            background-color: #36475a;
             color: #fff;
             border-radius: 5px; /* 按鈕圓角 */
             cursor: pointer;
@@ -113,7 +137,7 @@
         }
 
         .card button:hover {
-            background-color: #0056b3; /* 滑鼠懸停時按鈕顏色改變 */
+            background-color: #babcbf; /* 滑鼠懸停時按鈕顏色改變 */
         }
 
         /* 全局按鈕樣式 */
@@ -129,11 +153,23 @@
     <!-- 藍色導航欄 -->
     <header class="navbar">
         <div class="logo">My Resources</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search...">
-            <button>&#128269;</button>
-        </div>
+
+
+        <div class="user-menu">
+            <img src="/static/img/user.png" alt="User" class="user-icon">
+            <div class="user-dropdown">
+              <div class="user-info">
+                <p>Hi, User Name</p>
+                <button onclick=logoutFunction()>Log Out</button>
+              </div>
+            </div>
+          </div>
+          
+
+    
     </header>
+
+
     
     <h1>Available Services</h1>
     
@@ -171,6 +207,14 @@
 
 
     </div>
+    <script>
+        function logoutFunction() {
+            alert('You have been logged out.'); // 顯示登出訊息
+            window.location = 'https://192.168.50.98:8080/login';
+        }
+    </script>
 
 </body>
+
+
 </html>

@@ -11,6 +11,18 @@ services:
       - ./pep_web:/app
     restart: always
 
+  pep_index:
+    build:
+      context: ./index
+      dockerfile: dockerfile
+    ports:
+      - "50051:50051"
+      - "2223:2223"
+      - "3389:3389"
+    volumes:
+      - ./index:/app
+    restart: always
+
   nginxproxyserver:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped

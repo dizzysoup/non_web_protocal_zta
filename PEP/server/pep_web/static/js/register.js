@@ -48,11 +48,6 @@ function prepareCredentialForServer(credential, token) {
       token : token 
     };
   }
-
-// 登入
-const url_loginbegin = 'https://de.yuntech.poc.com:3443/fido2/login/begin';
-const url_logincomplete =  'https://de.yuntech.poc.com:3443/fido2/login/complete';
-
 async function registerUser() {
     var username = $("#username").val();            
 
@@ -80,7 +75,7 @@ async function registerUser() {
     let publicKeyObj;
     try {
         publicKeyObj = JSON.parse(result.public_key);
-        console.log("Parsed publicKeyObj:", publicKeyObj);
+        
     } catch (error) {
         console.error("無法解析 public_key:", error);
         alert("後端返回的資料格式錯誤");

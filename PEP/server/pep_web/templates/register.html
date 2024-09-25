@@ -11,12 +11,14 @@
 </head>
 
 <body>
-    <div class="container" id="mainContainer">
+    <div class="container mt-5 text-center">
         <h1>Register</h1>
-        <input type="text" name="username" id="username" placeholder="Enter your username">
-        <button onclick="registerUser()">註冊</button>
-        <button type="button" onclick="goBack()">返回主頁面</button>
+        <input type="text" name="username" id="username" placeholder="Enter your username" class="form-control mb-3">
+        <button class="btn btn-primary mb-2" onclick="registerUser()">註冊</button>
+        <!-- 返回主頁面按鈕，點擊時跳轉到根路徑 / -->
+        <button class="btn btn-primary" onclick="window.location.href='/'">返回主頁面</button>
     </div>
+
 
     <script src="../static/js/register.js"></script>
 </body>

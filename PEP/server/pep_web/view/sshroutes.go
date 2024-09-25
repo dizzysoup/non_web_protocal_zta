@@ -1,10 +1,14 @@
 package view
 
 import (
-	"agweb/component"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
+
+	"agweb/component"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -18,11 +22,38 @@ var (
 			return true
 		},
 	}
-	user     = "linuxrp"
+	user     = "defaultUser"
 	password = "linuxrp"
 	host     = "192.168.50.223"
 	port     = 22
 )
+
+type UsernameResponse struct {
+	Username string `json:"username"`
+}
+
+func fetchUsername() (string, error) {
+	url := "http://de.yuntech.poc.com/web/login/begin"
+	reqBody := []byte(`{"key":"value"}`)
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch username: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 使用 io.ReadAll 代替 ioutil.ReadAll
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	var usernameResp UsernameResponse
+	if err := json.Unmarshal(body, &usernameResp); err != nil {
+		return "", fmt.Errorf("failed to parse username response: %v", err)
+	}
+
+	return usernameResp.Username, nil
+}
 
 func wsHandle(c *gin.Context) {
 	var (
@@ -31,6 +62,14 @@ func wsHandle(c *gin.Context) {
 		sshConn *component.SSHConnect
 		err     error
 	)
+
+	user, err = fetchUsername()
+	if err != nil {
+		fmt.Println("Error fetching username:", err)
+		// 可以考慮在這裡返回錯誤訊息給 WebSocket 客戶端
+		return
+	}
+
 	// Upgrade Gin context to WebSocket connection
 	conn, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
