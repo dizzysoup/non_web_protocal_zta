@@ -212,11 +212,11 @@ match args.command:
          # gRPC 傳輸
         Authclient = AuthClient(pep_address)
         public_key = Authclient.login_begin(username)
-        
+        print(public_key)
         
         # 讀取憑證
         credential = jwt.decode(public_key.token, secret_key, algorithms=["HS256"])
-        print(credential)
+        
         if 'challenge' in credential['public_key']:
             challenge_base64 = credential['public_key']['challenge']
             credential['public_key']['challenge'] = base64.b64decode(challenge_base64)
@@ -253,16 +253,10 @@ match args.command:
         
         payload = jwt.encode(payload , secret_key, algorithm="HS256")
         print(payload)   
+        print("把token送到PEP")
         res = Authclient.login_complete(payload)
-        print("Credential authenticated!")
-        
-        # 傳送憑證到server -- '192.168.71.3:50051'       
-       # pep_address += ':50051' 
-       # rpcclient = CredentialClient(pep_address)
-       # rpcclient.send_credentials_to_auth(0, load_credential_files_by_json())
-        
-       # update_json_file('credentials/data.json', {'pep_auth': True, 'pep_ip':  args.pep})
-        
+        print(res)
+   
     case "ssh":      
         with open('credentials/data.json', 'r') as f:
            data = json.load(f) 
@@ -289,16 +283,16 @@ match args.command:
         rp_ip = args.rp
         username = args.user
         # 檢查該RP 是否有註冊
-        with open('credentials/data.json', 'r') as f:
-           data = json.load(f) 
-        pep_address = data.get("pep_ip") + ":50051" 
+        # with open('credentials/data.json', 'r') as f:
+         #   data = json.load(f) 
+        pep_address = "192.168.50.98:50051" 
         rpcclient = RPManagerClient(pep_address)
         response = rpcclient.check_rp_registration(rp_ip)
         if(response.is_registered == False):
             print("The IP address or Domain is not registered")
             sys.exit(1)
         
-        start_rdp(data.get("pep_ip"), username)
+        start_rdp("192.168.50.98", username)
     case "logout" : 
        update_json_file('credentials/data.json', {'pep_auth': False, 'pep_ip': ''})
        print("Logout successfully")
