@@ -425,9 +425,16 @@ class Fido2Server:
         for cred in credentials:
             if cred.credential_id == credential_id:
                 try:
+                    logger.debug(f"Authenticating Credential ID: {credential_id.hex()}")
+                    logger.debug(f"Public Key: {cred.public_key}")
+                    logger.debug(f"Auth Data: {auth_data.hex()}")
+                    logger.debug(f"Client Data Hash: {client_data.hash.hex()}")
+                    logger.debug(f"Signature: {signature.hex()}")
+                    logger.debug(f"Auth Data + Client_data hash : {(auth_data + client_data.hash).hex()}")
                     cred.public_key.verify(auth_data + client_data.hash, signature)
                 except _InvalidSignature:
                     raise ValueError("Invalid signature.")
+                    
                 logger.info(f"Credential authenticated: {credential_id.hex()}")
                 return cred
         raise ValueError(credential_id, cred.credential_id)

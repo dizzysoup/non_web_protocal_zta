@@ -130,6 +130,7 @@ class ES256(CoseKey):
         ).public_key(default_backend()).verify(
             signature, message, ec.ECDSA(self._HASH_ALG)
         )
+        
 
     @classmethod
     def from_cryptography_key(cls, public_key):
@@ -305,5 +306,7 @@ class ES256K(CoseKey):
                 -1: 8,
                 -2: int2bytes(pn.x, 32),
                 -3: int2bytes(pn.y, 32),
+                
             }
         )
+    

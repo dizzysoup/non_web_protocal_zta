@@ -56,24 +56,6 @@ function checkUsernameInAD(username, callback) {
   });
 }
 
-// 檢查 username 是否存在於AD
-router.post('/check/ADuser', function(req, res, next) {
-  const requestData = req.body;
-  const username = requestData.username;
-
-  checkUsernameInAD(username, (err, exists) => {
-    if (err) {
-      return res.status(500).json({ status: 'error', error: 'AD query failed' });
-    }
-
-    if (!exists) {
-      return res.status(404).json({ status: 'error', error: 'Username not found in AD' });
-    }
-
-    res.json({ status: 'success', message: 'Username exists in AD' });
-  });
-});
-
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false, // 忽略自簽名憑證錯誤
@@ -104,7 +86,7 @@ router.post('/register/begin', function(req, res, next) {
     // 如果 username 存在於 AD 中，繼續請求
     winlogger.info('Username exists in AD, proceeding to send request to Fido Server');
 
-    axios.post('https://fido2_server:5443/agent/register/begin', requestData , {httpsAgent})
+    axios.post('https://fido2_server:5443/web/register/begin', requestData , {httpsAgent})
       .then(response => {
         winlogger.info("Fido Server 回傳 " + response.data);
         res.status(200).json(response.data);
@@ -123,7 +105,7 @@ router.post('/register/complete', function(req, res, next) {
     
   
     
-    axios.post('https://fido2_server:5443/agent/register/complete' , requestData , {httpsAgent})
+    axios.post('https://fido2_server:5443/web/register/complete' , requestData , {httpsAgent})
       .then(response => {
         winlogger.info("註冊成功：" + response.data) ;
         res.json(response.data);
@@ -156,35 +138,31 @@ router.post('/login/begin', function(req, res, next) {
     // 如果 username 存在於 AD 中，繼續請求
     winlogger.info('Username exists in AD, proceeding to send request to Fido Server');
 
-   // 使用 fetch 進行 POST 請求
-   axios.post('https://fido2_server:5443/agent/login/begin', requestData, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    httpsAgent: httpsAgent, // 使用 httpsAgent 設定
-  })
+  axios.post('https://fido2_server:5443/web/login/begin' , requestData, {httpsAgent})
     .then(response => {
-      winlogger.info(" axios  URL  https://fido2_server:5443/agent/login/begin");
-      winlogger.info(response.data); // 輸出接收到的資料
-      res.status(200).json(response.data)
+      winlogger.info("Fido Server 回傳 " + response.data);
+      res.status(200).json(response.data);
     })
     .catch(error => {
-      winlogger.error('發送請求時發生錯誤:', error); // 錯誤處理
-    
-    });
+      winlogger.error(error.message);
+      console.error(error.message);
+      res.status(500).json({status: 'error' , error : error.message});
+    })
 });
 });
 router.post('/login/complete', function(req, res, next) {
   winlogger.info("使用者完成FIDO Key 指紋辨識，正在重定向至FIDO Server 進行登入驗證..")
   const requestData = req.body 
-  axios.post('https://fido2_server:5443/agent/login/complete' , requestData,{httpsAgent})
+  axios.post('https://fido2_server:5443/web/login/complete' , requestData , {
+    headers: req.headers,
+    httpsAgent})
     .then(response => {
       winlogger.info("登入成功：" + response.data) ;
       res.json(response.data);
     })
     .catch(error => {
       winlogger.error("登入失敗" + error.message);
-      console.error("Error forward ");
+      console.error(error.message);
       res.status(500).json({status: 'error' , error : error.message});
     })
     

@@ -9,7 +9,7 @@ import base64
 db_config = {
     'user': 'user',
     'password': 'password',
-    'host': '172.18.0.3',
+    'host': 'fido2_db',
     'database': 'fido2',
     'raise_on_warnings': True
 }
@@ -62,7 +62,6 @@ def credential_descriptor_transfer_2(app , username):
         for k , v in json.loads(public_key).items()
     }
     aaguid_bytes = bytes.fromhex(aaguid.replace('-',''))
-    app.logger.info(isinstance(credential_id , bytes))
     aattested_credential = AttestedCredentialData.create(Aaguid(aaguid_bytes), credential_id, public_key)
 
     cursor.close()

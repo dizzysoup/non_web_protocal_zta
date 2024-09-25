@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import fidoRouter from './routes/fido.js';
+import fidoRouter1 from './routes/web_fido.js';
 import RPRouter from './routes/rp.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,7 +42,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 路由
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/fido2', fidoRouter);
+app.use('/agentfido', fidoRouter);
+app.use('/webfido', fidoRouter1);
 app.use('/rp' , RPRouter);
 
 // 捕獲 404 並轉交到錯誤處理器
