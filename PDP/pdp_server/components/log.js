@@ -10,7 +10,7 @@ const winlogger =  createLogger({
                 format.align(),
                 format.printf(
                     (info) =>
-                        `$(info.level):${[info.timestamp]}:${info.message}`
+                        `${info.level}: ${info.timestamp}: ${info.message}`
                 )
             )
         })

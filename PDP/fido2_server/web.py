@@ -177,7 +177,7 @@ def web_post_complete_data():
         # 將 public key bytes 解碼為 CBOR 格式的物件
         public_key_object = cbor.decode(public_key_bytes)
         public_key = CoseKey.parse(public_key_object)
-       
+        logger.info("public_key: %s", public_key)
         credential_data = AttestedCredentialData.create(
             aaguid = aaguid_bytes,
             credential_id = credential_id,
@@ -241,7 +241,7 @@ def web_post_complete_data():
         (count , ) = cursor.fetchone()
         
         if count == 0 :
-            public_key_dict = {k: v.hex() if isinstance(v, bytes) else v for k, v in auth_data.credential_data.public_key.items()}
+            public_key_dict = {k: base64.b64encode(v).decode('utf-8') if isinstance(v, bytes) else v for k, v in auth_data.credential_data.public_key.items()}
             public_keys = json.dumps(public_key_dict)
             ADD_CREDENTIAL = ("INSERT INTO credentialData (aaguid , credential_id , public_key,username) VALUES (%s , %s ,%s , %s )")    
             cursor.execute(ADD_CREDENTIAL , (aaguid, base64.b64encode(auth_data.credential_data.credential_id).decode("utf-8") , public_keys , username))
@@ -365,43 +365,6 @@ def login_complete():
     credential_id = base64.b64decode(posted_data['credential_id'])
     
     logger.info("credentials: %s" , credentials )
-    ###########
-    public_key = credentials.public_key
-    x = int.from_bytes(public_key[-2], 'big')
-    y = int.from_bytes(public_key[-3], 'big')
-    logger.info(f"Extracted X coordinate: {x}")
-    logger.info(f"Extracted Y coordinate: {y}")
-
-    try:
-    # 使用 SECP256R1 取得橢圓曲線物件
-        curve = SECP256R1()
-
-        # 在 Python 中沒有直接提供 SECP256R1 的 order 方法，可以使用以下方式手動指定
-        # SECP256R1 曲線的 order，這是標準 SECP256R1 橢圓曲線的順序值
-        curve_order = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF
-
-        # 檢查座標是否在曲線的範圍內
-        if x >= curve_order or x <= 0:
-            logger.error(f"X coordinate is out of the valid range for SECP256R1: {x}")
-            raise ValueError(f"Invalid EC key: X coordinate is out of range.")
-        if y >= curve_order or y <= 0:
-            logger.error(f"Y coordinate is out of the valid range for SECP256R1: {y}")
-            raise ValueError(f"Invalid EC key: Y coordinate is out of range.")
-
-        logger.info("Coordinates are within the valid range.")
-
-        try:
-            # 驗證簽名的步驟
-            public_key.verify(auth_data + client_data.hash, signature)
-            logger.info("Signature verification successful.")
-        except _InvalidSignature:
-            logger.error("Invalid signature detected.")
-            raise ValueError("Invalid signature.")
-    except ValueError as e:
-            logger.error(f"Invalid EC key: {e}")
-            raise
-    
-    #########
 
     res = server.authenticate_complete(
         posted_data['state'] , 
@@ -411,40 +374,8 @@ def login_complete():
         auth_data,
         signature
     )
-    
-    
-    logger.debug(f"Credential ID: {credential_id.hex()}")
-    logger.debug(f"Client Data: {client_data}")
-    logger.debug(f"Authenticator Data: {auth_data}")
-    logger.debug(f"Signature: {signature.hex()}")
-    logger.info("authenticatorData : %s" ,rp_id_hash )
-    
-   
-    logger.info("debug 在此 ")
 
-    
-   
-    
-    credential_id = base64.b64decode(posted_data["payload"]["credential_id"])
-    client_data = data["payload"]["client_data"]
-    
-    
-    authenticator_data = data["payload"]["authenticator_data"]
-    
-    state = data["state"]
-    credential_data = authenticator_data.get('credential_data')
-    
-    if credential_data is None:
-        credential_data = b''
-    extensions = authenticator_data.get('extensions', None)
-    if extensions is not None:
-        extensions = cbor.dumps(extensions) 
-    
-    
-    
-    signature = base64.b64decode(data["payload"]["signature"])
-    logger.info("credentials : %s" , credentials)
-    
+
     logger.info("Res : %s" , res)
     data = {
         'message': 'success!'  ,
