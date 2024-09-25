@@ -133,42 +133,48 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
         self.attestationobject = None 
     
     def LoginComplete(self , request , context):
+        print("收到來自agent的資料")
+        print(request)
         token = request.token 
-        url = "http://192.168.50.76:3000/fido2/login/complete"
+        url = "https://de.yuntech.poc.com:3443/agentfido/login/complete"
         headers = {
             "Content-Type": "application/json"
         }
         payload = {
             "token" : token
         }
-        message = requests.post(url, json = payload, headers=headers).json()
-       
-        print(message)
+        try :
+            message = requests.post(url, json = payload, headers=headers, verify=False).json()
+            print("收到來自agent的token")
+            print(message)
+        except Exception as e :
+            print(f"發生錯誤: {e}")
+        
+        
         return credentials_pb2.Message(msg=message['data'])
     
     def LoginBegin(self , request , context):
-        
+        print("註冊開始")
         username = request.name 
-        url = "http://de.yunpoc.edu.tw:3000/fido2/login/begin"
-        url = "http://192.168.50.76:3000/fido2/login/begin"
+        url = "https://de.yuntech.poc.com:3443/agentfido/login/begin"
         headers = {
             "Content-Type": "application/json"
         }
         payload = {
             "username" : username
         }
-        response = requests.post(url, json = payload, headers=headers)
-        print(response)
+        try:
+            response = requests.post(url, data=json.dumps(payload), headers=headers , verify=False).json()
+        except Exception as e :
+            print(f"發生錯誤: {e}")
         
-        if response.status_code == 200 : 
-            token = response.json()['data']
-            print(token)
-            return credentials_pb2.JWTResponse(token=token)
+        print(response)
+        return credentials_pb2.JWTResponse(token=str(response))
+       
    
     def RegisterComplete(self , request , context):
         token = request.token
-        # url = "http://de.yunpoc.edu.tw:3000/fido2/register/complete"
-        url = "http://192.168.50.76:3000/fido2/register/complete"
+        url = "https://de.yuntech.poc.com:3443/agentfido/register/complete"
         headers = {
             "Content-Type": "application/json"
         }
@@ -176,21 +182,21 @@ class AuthenticationService(credentials_pb2_grpc.AuthenticationService):
             "token" : token
         }
         print(payload)
-        message = requests.post(url, json = payload, headers=headers).json()
+        message = requests.post(url, json = payload, headers=headers , verify=False).json()
         print(message)
         
         
         return credentials_pb2.Message(msg=message['data'])
     
     def RegisterBegin(self , request , context):
-        url = "http://192.168.50.76:3000/fido2/register/begin"
+        url = "https://de.yuntech.poc.com:3443/agentfido/register/begin"
         payload = {
             "username" : request.name 
         }
         headers = {
             "Content-Type": "application/json"
         }
-        data = requests.post(url, data=json.dumps(payload), headers=headers).json()        
+        data = requests.post(url, data=json.dumps(payload), headers=headers, verify=False).json()        
         public_key_data = json.loads(data['public_key'])
         token = data['token']
         

@@ -1,169 +1,18 @@
-2024-09-11 05:41:18 - MyLogger - DEBUG - gRPC Server started on port 50051
-2024-09-11 05:41:49 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 05:41:49 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
-2024-09-11 05:42:06 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 05:42:06 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
-2024-09-11 05:42:18 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 05:42:18 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/login/begin HTTP/1.1" 200 589
-2024-09-11 05:57:35 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 05:57:35 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/login/begin HTTP/1.1" 404 53
-2024-09-11 05:57:35 - grpc._common - ERROR - Exception serializing message!
+2024-09-25 13:14:32 - MyLogger - DEBUG - gRPC Server started on port 50051
+2024-09-25 13:14:38 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): de.yuntech.poc.com:3443
+2024-09-25 13:14:38 - urllib3.connectionpool - DEBUG - https://de.yuntech.poc.com:3443 "POST /agentfido/login/begin HTTP/1.1" 200 559
+2024-09-25 13:14:48 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): de.yuntech.poc.com:3443
+2024-09-25 13:14:48 - urllib3.connectionpool - DEBUG - https://de.yuntech.poc.com:3443 "POST /agentfido/login/complete HTTP/1.1" 404 750
+2024-09-25 13:14:48 - grpc._server - ERROR - Exception calling application: cannot access local variable 'message' where it is not associated with a value
 Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_common.py", line 89, in _transform
-    return transformer(message)
-           ^^^^^^^^^^^^^^^^^^^^
-TypeError: descriptor 'SerializeToString' for 'google._upb._message.Message' objects doesn't apply to a 'NoneType' object
-2024-09-11 05:57:37 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 05:57:38 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/login/begin HTTP/1.1" 200 589
-2024-09-11 06:32:57 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:32:57 - grpc._server - ERROR - Exception calling application: HTTPConnectionPool(host='192.168.50.76', port=3000): Max retries exceeded with url: /fido2/login/begin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x703d1a570b60>: Failed to establish a new connection: [Errno 111] Connection refused'))
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connection.py", line 198, in _new_conn
-    sock = connection.create_connection(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/util/connection.py", line 85, in create_connection
-    raise err
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/util/connection.py", line 73, in create_connection
-    sock.connect(sa)
-ConnectionRefusedError: [Errno 111] Connection refused
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 793, in urlopen
-    response = self._make_request(
-               ^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 496, in _make_request
-    conn.request(
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connection.py", line 400, in request
-    self.endheaders()
-  File "/usr/lib/python3.12/http/client.py", line 1331, in endheaders
-    self._send_output(message_body, encode_chunked=encode_chunked)
-  File "/usr/lib/python3.12/http/client.py", line 1091, in _send_output
-    self.send(msg)
-  File "/usr/lib/python3.12/http/client.py", line 1035, in send
-    self.connect()
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connection.py", line 238, in connect
-    self.sock = self._new_conn()
-                ^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connection.py", line 213, in _new_conn
-    raise NewConnectionError(
-urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPConnection object at 0x703d1a570b60>: Failed to establish a new connection: [Errno 111] Connection refused
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/adapters.py", line 667, in send
-    resp = conn.urlopen(
-           ^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 847, in urlopen
-    retries = retries.increment(
-              ^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/urllib3/util/retry.py", line 515, in increment
-    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='192.168.50.76', port=3000): Max retries exceeded with url: /fido2/login/begin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x703d1a570b60>: Failed to establish a new connection: [Errno 111] Connection refused'))
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 609, in _call_behavior
     response_or_iterator = behavior(argument, context)
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 160, in LoginBegin
-    response = requests.post(url, json = payload, headers=headers)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/api.py", line 115, in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/api.py", line 59, in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/sessions.py", line 589, in request
-    resp = self.send(prep, **send_kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
-    r = adapter.send(request, **kwargs)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/requests/adapters.py", line 700, in send
-    raise ConnectionError(e, request=request)
-requests.exceptions.ConnectionError: HTTPConnectionPool(host='192.168.50.76', port=3000): Max retries exceeded with url: /fido2/login/begin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x703d1a570b60>: Failed to establish a new connection: [Errno 111] Connection refused'))
-2024-09-11 06:33:10 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:33:10 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/login/begin HTTP/1.1" 404 53
-2024-09-11 06:33:10 - grpc._common - ERROR - Exception serializing message!
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_common.py", line 89, in _transform
-    return transformer(message)
-           ^^^^^^^^^^^^^^^^^^^^
-TypeError: descriptor 'SerializeToString' for 'google._upb._message.Message' objects doesn't apply to a 'NoneType' object
-2024-09-11 06:35:46 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:35:46 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/login/begin HTTP/1.1" 404 53
-2024-09-11 06:35:46 - grpc._common - ERROR - Exception serializing message!
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_common.py", line 89, in _transform
-    return transformer(message)
-           ^^^^^^^^^^^^^^^^^^^^
-TypeError: descriptor 'SerializeToString' for 'google._upb._message.Message' objects doesn't apply to a 'NoneType' object
-2024-09-11 06:36:04 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:36:04 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 404 53
-2024-09-11 06:36:04 - grpc._server - ERROR - Exception calling application: 'public_key'
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 194, in RegisterBegin
-    public_key_data = json.loads(data['public_key'])
-                                 ~~~~^^^^^^^^^^^^^^
-KeyError: 'public_key'
-2024-09-11 06:41:41 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:41:41 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 404 53
-2024-09-11 06:41:41 - grpc._server - ERROR - Exception calling application: 'public_key'
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 194, in RegisterBegin
-    public_key_data = json.loads(data['public_key'])
-                                 ~~~~^^^^^^^^^^^^^^
-KeyError: 'public_key'
-2024-09-11 06:42:01 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:42:01 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 404 53
-2024-09-11 06:42:01 - grpc._server - ERROR - Exception calling application: 'public_key'
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 194, in RegisterBegin
-    public_key_data = json.loads(data['public_key'])
-                                 ~~~~^^^^^^^^^^^^^^
-KeyError: 'public_key'
-2024-09-11 06:42:24 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:42:24 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
-2024-09-11 06:43:30 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:43:30 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
-2024-09-11 06:43:57 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:43:57 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
-2024-09-11 06:46:03 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:46:03 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 404 53
-2024-09-11 06:46:03 - grpc._server - ERROR - Exception calling application: 'public_key'
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 194, in RegisterBegin
-    public_key_data = json.loads(data['public_key'])
-                                 ~~~~^^^^^^^^^^^^^^
-KeyError: 'public_key'
-2024-09-11 06:48:17 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:48:17 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 404 53
-2024-09-11 06:48:17 - grpc._server - ERROR - Exception calling application: 'public_key'
-Traceback (most recent call last):
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/myvenv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 194, in RegisterBegin
-    public_key_data = json.loads(data['public_key'])
-                                 ~~~~^^^^^^^^^^^^^^
-KeyError: 'public_key'
-2024-09-11 06:48:36 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 192.168.50.76:3000
-2024-09-11 06:48:36 - urllib3.connectionpool - DEBUG - http://192.168.50.76:3000 "POST /fido2/register/begin HTTP/1.1" 200 1463
+  File "/home/yunpep/non_web_protocal_zta/PEP/server/index/grpc_server.py", line 154, in LoginComplete
+    return credentials_pb2.Message(msg=message['data'])
+                                       ^^^^^^^
+UnboundLocalError: cannot access local variable 'message' where it is not associated with a value
+2024-09-25 13:16:12 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): de.yuntech.poc.com:3443
+2024-09-25 13:16:12 - urllib3.connectionpool - DEBUG - https://de.yuntech.poc.com:3443 "POST /agentfido/login/begin HTTP/1.1" 200 559
+2024-09-25 13:16:23 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): de.yuntech.poc.com:3443
+2024-09-25 13:16:23 - urllib3.connectionpool - DEBUG - https://de.yuntech.poc.com:3443 "POST /agentfido/login/complete HTTP/1.1" 200 45
