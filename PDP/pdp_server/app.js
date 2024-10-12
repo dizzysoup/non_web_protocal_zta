@@ -11,6 +11,7 @@ import usersRouter from './routes/users.js';
 import fidoRouter from './routes/fido.js';
 import fidoRouter1 from './routes/web_fido.js';
 import RPRouter from './routes/rp.js';
+import RPMaintainRouter from './routes/rp_maintained.js' ; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,7 +25,7 @@ app.set('view engine', 'ejs');
 
 // 設定 CORS 選項
 const corsOptions = {
-  origin: ['https://ag.yuntech.poc.com:8080','https://ag.yuntech.poc.com'], // 允許的來源，可以是多個
+  origin: ['https://ag.yuntech.poc.com:8080','https://ag.yuntech.poc.com', 'http://de.yuntech.poc.com', 'http://de.yuntech.poc.com:3001'], // 允許的來源，可以是多個
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 允許的 HTTP 方法
   allowedHeaders: ['Content-Type', 'Authorization'], // 允許的 HTTP 頭部
   credentials: true, // 如果需要傳遞憑證（如 Cookies），設置為 true
@@ -45,6 +46,7 @@ app.use('/users', usersRouter);
 app.use('/agentfido', fidoRouter);
 app.use('/webfido', fidoRouter1);
 app.use('/rp' , RPRouter);
+app.use('/maintained-computers' , RPMaintainRouter)
 
 // 捕獲 404 並轉交到錯誤處理器
 app.use(function(req, res, next) {

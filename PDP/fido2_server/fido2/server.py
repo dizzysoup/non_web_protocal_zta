@@ -187,7 +187,7 @@ class Fido2Server:
         descriptors = _wrap_credentials(credentials)
         state = self._make_internal_state(challenge, user_verification)
         logger.debug(
-            "Starting new registration, existing credentials: "
+            "開始新註冊，現有憑證: "
             + ", ".join(d.id.hex() for d in descriptors or [])
         )
 
@@ -327,10 +327,10 @@ class Fido2Server:
         descriptors = _wrap_credentials(credentials)
         state = self._make_internal_state(challenge, user_verification)
         if descriptors is None:
-            logger.debug("Starting new authentication without credentials")
+            logger.debug("無需憑證即可開始新的身份驗證:")
         else:
             logger.debug(
-                "Starting new authentication, for credentials: "
+                "開始新的身份驗證，以獲取憑證: "
                 + ", ".join(d.id.hex() for d in descriptors)
             )
 
@@ -425,17 +425,16 @@ class Fido2Server:
         for cred in credentials:
             if cred.credential_id == credential_id:
                 try:
-                    logger.debug(f"Authenticating Credential ID: {credential_id.hex()}")
-                    logger.debug(f"Public Key: {cred.public_key}")
+                    logger.debug(f"正在驗證的憑證 ID: {credential_id.hex()}")
+                    logger.debug(f"公鑰: {cred.public_key}")
                     logger.debug(f"Auth Data: {auth_data.hex()}")
                     logger.debug(f"Client Data Hash: {client_data.hash.hex()}")
                     logger.debug(f"Signature: {signature.hex()}")
                     logger.debug(f"Auth Data + Client_data hash : {(auth_data + client_data.hash).hex()}")
                     cred.public_key.verify(auth_data + client_data.hash, signature)
                 except _InvalidSignature:
-                    raise ValueError("Invalid signature.")
-                    
-                logger.info(f"Credential authenticated: {credential_id.hex()}")
+                    raise ValueError("無效的簽章.")
+                logger.info(f"憑證 已驗證: {credential_id.hex()}")
                 return cred
         raise ValueError(credential_id, cred.credential_id)
 

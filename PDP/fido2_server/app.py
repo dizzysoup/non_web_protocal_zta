@@ -56,6 +56,23 @@ def serialize_bytes(obj):
         return [serialize_bytes(v) for v in obj]
     return obj
 
+@app.route('/fidousers')
+def fidousers():
+    cnx = mysql.connector.connect(**db_config)
+    cursor = cnx.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users ")
+    users = cursor.fetchall()
+    return jsonify(users)
+
+@app.route('/credentials')
+def credentials():
+    cnx = mysql.connector.connect(**db_config)
+    cursor = cnx.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM credentialData ")
+    credentials = cursor.fetchall()
+    
+    return jsonify(credentials)
+
 @app.route('/delete_user/<string:user_name>', methods=['POST'])
 def delete_user(user_name):
     cnx = mysql.connector.connect(**db_config)

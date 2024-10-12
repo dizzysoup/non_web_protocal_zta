@@ -10,12 +10,15 @@ const ldapOptions = {
 };
 
 
-
 const bindDN = 'CN=Administrator,CN=Users,DC=yuntech,DC=poc,DC=com'; 
 const bindPassword = '1qaz@WSX3edc'; 
 const searchBase = 'DC=yuntech,DC=poc,DC=com'; 
 winlogger.info(`Search base: ${searchBase}`);
 
+// 獲取 IP 地址
+function getClientIp(req) {
+  return  req.socket.remoteAddress;
+}
 // 檢查 username 是否存在於 AD
 function checkUsernameInAD(username, callback) {
   const client = ldap.createClient(ldapOptions);
@@ -26,6 +29,8 @@ function checkUsernameInAD(username, callback) {
       return callback(err, null);
     } else {
       winlogger.info('LDAP bind successful');
+      const clientIp = getClientIp(req);
+      winlogger.info(`Request from IP: ${clientIp}, 發起登入請求`);
     }
 
     const searchFilter = `(sAMAccountName=${username})`;
@@ -61,6 +66,10 @@ router.post('/check/ADuser', function(req, res, next) {
   const requestData = req.body;
   const username = requestData.username;
 
+  // 獲取並記錄 IP 地址
+  const clientIp = getClientIp(req);//
+  winlogger.info(`Request from IP: ${clientIp}, Username: ${username}`);
+
   checkUsernameInAD(username, (err, exists) => {
     if (err) {
       return res.status(500).json({ status: 'error', error: 'AD query failed' });
@@ -82,6 +91,7 @@ const httpsAgent = new https.Agent({
 
 // 註冊流程
 router.post('/register/begin', function(req, res, next) {
+
   winlogger.info("使用者發起註冊請求，重定向至Fido Server");
   const requestData = req.body;4
   winlogger.info("request data: " + JSON.stringify(requestData, null, 2));
@@ -120,12 +130,10 @@ router.post('/register/begin', function(req, res, next) {
 router.post('/register/complete', function(req, res, next) {
     winlogger.info("使用者完成FIDO Key 指紋辨識，正在重定向至FIDO Server 進行註冊完成..")
     const requestData = req.body 
-    
-  
-    
     axios.post('https://fido2_server:5443/agent/register/complete' , requestData , {httpsAgent})
+      .then(res=> res.json())
       .then(response => {
-        winlogger.info("註冊成功：" + response.data) ;
+        winlogger.info("註冊成功：" + response) ;
         res.json(response.data);
       })
       .catch(error => {
@@ -134,8 +142,11 @@ router.post('/register/complete', function(req, res, next) {
         res.status(500).json({status: 'error' , error : error.message});
       })
 });
-
+// 登入流程
 router.post('/login/begin', function(req, res, next) {
+  // 獲取並記錄 IP 地址
+  const clientIp = getClientIp(req);
+  winlogger.info(`Request from IP: ${clientIp}, 發起登入請求`);//
   winlogger.info("使用者發起登入請求，重定向至Fido Server");
   const requestData = req.body
   winlogger.info("request data: " + JSON.stringify(requestData, null, 2));
@@ -174,16 +185,19 @@ router.post('/login/begin', function(req, res, next) {
     });
 });
 });
+
+
+
 router.post('/login/complete', function(req, res, next) {
-  winlogger.info("使用者完成FIDO Key 指紋辨識，正在重定向至FIDO Server 進行登入驗證..")
+  winlogger.info("使用者完成FIDO Key 指紋辨識，正在重定向至FIDO Server 進行登入驗證..?????????????????")
   const requestData = req.body 
-  axios.post('https://fido2_server:5443/agent/login/complete' , requestData,{httpsAgent})
-    .then(response => {
-      winlogger.info("登入成功：" + response.data) ;
+  axios.post('https://fido2_server:5443/agent/login/complete' , requestData,{httpsAgent})    
+    .then(response => {      
+      winlogger.info(response.data) ;
       res.json(response.data);
     })
     .catch(error => {
-      winlogger.error("登入失敗" + error.message);
+      winlogger.error("登入失敗 : " + error.message);
       console.error("Error forward ");
       res.status(500).json({status: 'error' , error : error.message});
     })

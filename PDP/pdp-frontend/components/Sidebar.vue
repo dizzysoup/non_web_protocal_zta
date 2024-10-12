@@ -10,16 +10,17 @@
     >
       <CHeading size="md" mb="6"> YUNTECH DE </CHeading>
       <CStack spacing="4">
-        <NuxtLink to="/" style="text-decoration: none;">
+        <NuxtLink to="/user-manager" style="text-decoration: none;">
           <CButton variant="ghost" justifyContent="flex-start" w="100%">
-            Home
+            User Manager 
           </CButton>
         </NuxtLink>
-        <NuxtLink to="/api-manager" style="text-decoration: none;">
+        <NuxtLink to="/rp-manager" style="text-decoration: none;">
           <CButton variant="ghost" justifyContent="flex-start" w="100%">
-            API Manager
+            RP Manager
           </CButton>
         </NuxtLink>
+        
         <NuxtLink to="/log" style="text-decoration: none;">
           <CButton variant="ghost" justifyContent="flex-start" w="100%">
             Log

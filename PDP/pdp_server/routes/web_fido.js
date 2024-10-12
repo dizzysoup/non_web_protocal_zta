@@ -64,9 +64,12 @@ const httpsAgent = new https.Agent({
 
 // 註冊流程
 router.post('/register/begin', function(req, res, next) {
+ 
+  const clientIp =  req.socket.remoteAddress;
+  winlogger.info(`Request from IP: ${clientIp}, 使用者發起註冊請求，重定向至Fido Server`);
   winlogger.info("使用者發起註冊請求，重定向至Fido Server");
   const requestData = req.body;4
-  winlogger.info("request data: " + JSON.stringify(requestData, null, 2));
+  winlogger.info("request data: " + requestData);
   const username = requestData.username;
 
   
@@ -140,7 +143,7 @@ router.post('/login/begin', function(req, res, next) {
 
   axios.post('https://fido2_server:5443/web/login/begin' , requestData, {httpsAgent})
     .then(response => {
-      winlogger.info("Fido Server 回傳 " + response.data);
+      winlogger.info("Fido Server 回傳 " + JSON.stringify(response.data));
       res.status(200).json(response.data);
     })
     .catch(error => {
@@ -157,7 +160,7 @@ router.post('/login/complete', function(req, res, next) {
     headers: req.headers,
     httpsAgent})
     .then(response => {
-      winlogger.info("登入成功：" + response.data) ;
+      winlogger.info("登入成功：" + JSON.stringify(response.data)) ;
       res.json(response.data);
     })
     .catch(error => {

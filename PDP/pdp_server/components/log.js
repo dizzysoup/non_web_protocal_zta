@@ -1,20 +1,19 @@
-import { createLogger , format , transports } from "winston"
+import { createLogger, transports, format } from 'winston';
 
-const winlogger =  createLogger({
+const winlogger = createLogger({
     transports: [
         new transports.File({
-            filename:"logs/server.log",
-            level:"info",
+            filename: "logs/server.log",
+            level: "info",
             format: format.combine(
-                format.timestamp({format: "MMM-DD-YYYY HH:mm:ss"}),
                 format.align(),
                 format.printf(
                     (info) =>
-                        `${info.level}: ${info.timestamp}: ${info.message}`
+                        `${info.level}: ${info.message}` 
                 )
             )
         })
     ]
-})
+});
 
-export default winlogger
+export default winlogger;

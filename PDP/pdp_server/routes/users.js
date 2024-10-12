@@ -1,37 +1,67 @@
 import express from 'express';
 import axios from 'axios';
+import pool from '../components/db.js'; 
+
+
 var router = express.Router();
 
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource???');
+router.get('/', async function(req, res, next) {
+    try {
+      const query = `
+        SELECT u.id , u.username , u.email , u.created_at , c.aaguid, c.credential_id , c.public_key 
+        FROM users u 
+        JOIN credentialData c ON u.username = c.username       
+        `;
+        const [rows] = await pool.query(query);
+        res.status(200).json(rows);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send("伺服器錯誤");
+      }
 });
 
+router.get('/credentials', async function(req, res, next) {
+    try {
+        const [rows] = await pool.query('SELECT * FROM credentialData');
+        res.status(200).json(rows);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send("伺服器錯誤");
+      }
+});
+
+router.delete('/credentials/:username', async (req, res) => {
+    const { aaguid } = req.params;
+    try {
+      const [result] = await pool.query('DELETE FROM credentialData WHERE username = ?', [aaguid]);
+      if (result.affectedRows === 0) {
+        return res.status(404).send("找不到該憑證");
+      }
+      res.status(200).send("憑證刪除");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("伺服器錯誤");
+    }
+  });
 //測試
 router.use(express.json());  // 允許 Express 解析 JSON 請求體
 
-// 定義 POST 路由來接收 /username 請求並轉發給 FIDO2
-router.post('/', async (req, res) => {
-    const { username } = req.body;
-    if (username) {
-      try {
-          // 發送請求至 FIDO2 伺服器
-          const fidoResponse = await axios.post('http://192.168.50.76:5000/fido2test', { username });
-          const fidoData = fidoResponse.data;
-  
-          // 將數據返回至 PEP
-          res.status(200).json({
-              message: `PDP 處理完成，FIDO2 伺服器回應: ${fidoData.message || "未提供訊息"}`,
-              data: fidoData
-          });
-      } catch (error) {
-          console.error(`轉發至 FIDO2 伺服器時發生錯誤: ${error.message}`);
-          res.status(500).send('轉發至 FIDO2 伺服器時發生錯誤');
+// 刪除特定使用者
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+      if (result.affectedRows === 0) {
+        return res.status(404).send("找不到該使用者");
       }
-  } else {
-      res.status(400).send('需要提供使用者名稱');
-  }
+      res.status(200).send("使用者已刪除");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("伺服器錯誤");
+    }
   });
+
 
 export default router ; 

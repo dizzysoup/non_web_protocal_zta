@@ -11,7 +11,7 @@ USE fido2;
 
 -- 創建使用者表
 CREATE TABLE IF NOT EXISTS users (
-  user_id INT PRIMARY KEY, -- user 識別唯一值
+  id INT PRIMARY KEY, -- user 識別唯一值
   username VARCHAR(50) NOT NULL,
   email VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -41,8 +41,15 @@ CREATE TABLE IF NOT EXISTS RP_Computers (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-
-
+-- RP 對應 User 表
+CREATE TABLE IF NOT EXISTS User_Maintained_Computers (
+  user_id INT,  -- 使用者 ID，來自 users 表
+  computer_id INT,  -- 電腦 ID，來自 RP_Computers 表
+  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 指派日期
+  PRIMARY KEY (user_id, computer_id),  -- 確保每位使用者對應到每台電腦只有一個關係
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,  -- 設定外鍵並在使用者刪除時一併刪除關係
+  FOREIGN KEY (computer_id) REFERENCES RP_Computers(id) ON DELETE CASCADE  -- 設定外鍵並在電腦刪除時一併刪除關係
+);
 
 
 FLUSH PRIVILEGES;

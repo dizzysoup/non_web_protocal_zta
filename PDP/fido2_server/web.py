@@ -249,10 +249,10 @@ def web_post_complete_data():
             logger.info("Inserted new credential data.")
 
             data = {
-                'message': 'Success',
-                'data': "Register Success "
+                'message': 'success!'  ,
+                'data' : 'abc'
             }
-            return jsonify(data)
+            return jsonify(data),200
         else :
             data = {
                 'message' : 'Failed',
@@ -379,6 +379,6 @@ def login_complete():
     logger.info("Res : %s" , res)
     data = {
         'message': 'success!'  ,
-        'data' : '登入成功!'
-    }
+        'data' : 'abc'
+    }    
     return jsonify(data) ,200 
