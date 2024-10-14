@@ -3,41 +3,44 @@ package component
 import (
 	"bytes"
 	"fmt"
-	"net"
+	"io/ioutil"
 
 	"golang.org/x/crypto/ssh"
 )
 
-// create ssh client
-func CreateSSHClient(user, password, host string, port int) (*ssh.Client, error) {
-	var (
-		auth         []ssh.AuthMethod
-		addr         string
-		clientConfig *ssh.ClientConfig
-		client       *ssh.Client
-		//session      *ssh.Session
-		err error
-	)
-	auth = make([]ssh.AuthMethod, 0)
-	auth = append(auth, ssh.Password(password))
+// 創建 SSH 客戶端，使用私鑰進行身份驗證
+func CreateSSHClientWithKey(user, host string, port int, privateKeyPath string) (*ssh.Client, error) {
+	// 讀取私鑰
+	key, err := ioutil.ReadFile(privateKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("無法讀取私鑰文件: %v", err)
+	}
 
-	clientConfig = &ssh.ClientConfig{
+	// 解析私鑰
+	signer, err := ssh.ParsePrivateKey(key)
+	if err != nil {
+		return nil, fmt.Errorf("無法解析私鑰: %v", err)
+	}
+
+	// 設置 SSH 客戶端配置，使用私鑰進行身份驗證
+	clientConfig := &ssh.ClientConfig{
 		User: user,
-		Auth: auth,
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			//Handling the host key
-			return nil
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
 		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // 略過主機密鑰檢查
 	}
-	addr = fmt.Sprintf("%s:%d", host, port)
-	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
-		return nil, err
+
+	// 拼接主機地址和端口
+	addr := fmt.Sprintf("%s:%d", host, port)
+
+	// 嘗試通過 SSH 連接到指定地址
+	client, err := ssh.Dial("tcp", addr, clientConfig)
+	if err != nil {
+		return nil, fmt.Errorf("無法建立 SSH 連線: %v", err)
 	}
+
 	return client, nil
-	/*if session, err = client.NewSession(); err != nil {
-		return nil, err
-	}
-	return session, nil*/
 }
 
 func runSSH(client *ssh.Client, command string) (string, error) {

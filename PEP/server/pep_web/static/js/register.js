@@ -63,13 +63,10 @@ async function registerUser() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username })
+    }).catch(e => {
+        console.error(e)
     });
-
-    if(response.status != 200 ){
-        alert("帳號不存在");
-        return;
-    }
-
+   
     const result = await response.json();
 
     let publicKeyObj;
@@ -137,7 +134,7 @@ async function registerUser() {
             const credential = await navigator.credentials.create({
                 publicKey: publicKeyCredentialCreationOptions
             });
-          
+            
             const credentialJSON = prepareCredentialForServer(credential,result.token);
             console.log(credentialJSON)
            
@@ -152,16 +149,16 @@ async function registerUser() {
             });
 
             if (completeResponse.status == 200) {               
-               // window.location.href = "https://ag.yuntech.poc.com:8080/sshpage";
-            } else {
-                alert("註冊失敗，請稍後再試");
-            }
-        } catch (error) {
-            console.error("憑證創建失敗:", error);
-            alert("註冊過程中出現錯誤，請稍後再試。");
-        }
-    } else {
-        console.error("WebAuthn API not supported in this browser.");
-        alert("您的瀏覽器不支援 WebAuthn API，請使用其他瀏覽器重試。");
+                // window.location.href = "https://ag.yuntech.poc.com:8080/sshpage";
+             } else {
+                 alert("註冊失敗，請稍後再試");
+             }
+         } catch (error) {
+             console.error("憑證創建失敗:", error);
+             alert("註冊過程中出現錯誤，請稍後再試。");
+         }
+     } else {
+         console.error("WebAuthn API not supported in this browser.");
+         alert("您的瀏覽器不支援 WebAuthn API，請使用其他瀏覽器重試。");
+     }
     }
-}

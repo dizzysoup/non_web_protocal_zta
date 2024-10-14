@@ -38,13 +38,17 @@ function arrayBufferToBase64(buffer) {
 const url_loginbegin = 'https://de.yuntech.poc.com:3443/webfido/login/begin';
 const url_logincomplete =  'https://de.yuntech.poc.com:3443/webfido/login/complete';
 
-
+//使用者登入
 async function loginUser() {
     var username = $("#username").val();
     if (username === "") {
         alert("Please enter a username");
         return;
     }
+
+    
+    console.log('Username saved:', username); // 確認是否成功儲存
+
     const response = await fetch(url_loginbegin,{
             method:'POST',
             headers:{
@@ -96,6 +100,7 @@ async function loginUser() {
             state: options.data.token
     }
     console.log( window.location.origin)
+    try {
     const completeResponse = await fetch(url_logincomplete, {
         method: 'POST',
         headers: {
@@ -105,12 +110,26 @@ async function loginUser() {
         body: JSON.stringify(respdata)
     });
 
-    if (!completeResponse.ok) {
-                throw new Error('登入失敗');
-    }else 
-        alert('登入成功！');
-}
+    const result = await completeResponse.json();   
+    if (completeResponse.ok && result.message === 'success!') {
+            alert('登入成功！');
+            const url = "https://de.yuntech.poc.com:3443/users/" + username ; 
+            const response = await (await fetch(url)).json();
+            
+            console.log(response[0].id);
+            localStorage.setItem('username', username); // 立即儲存 username
+            localStorage.setItem('user_id', response[0].id); // 立即儲存 user id 
+            // 登入成功後跳轉到 sshindex.html
+            window.location.href = '/RemotePage/'; // 根據實際的路徑設定
+    } else {
+            alert('登入失敗，請重試');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('登入失敗');
+    }
 
+}
             
         
     

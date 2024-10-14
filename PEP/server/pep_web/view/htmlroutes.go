@@ -29,4 +29,5 @@ func HTMLtRoutes(r *gin.Engine) {
 	})
 	r.POST("/login/begin", BeginRegistration)
 	r.POST("/login/complete", CompleteRegistration)
+
 }

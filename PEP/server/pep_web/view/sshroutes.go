@@ -1,58 +1,18 @@
 package view
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"html/template"
-	"io"
-	"net/http"
-
 	"agweb/component"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"golang.org/x/crypto/ssh"
 )
 
-var (
-	//Allow cross-domain
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-	user     = "defaultUser"
-	password = "linuxrp"
-	host     = "192.168.50.223"
-	port     = 22
-)
-
-type UsernameResponse struct {
-	Username string `json:"username"`
-}
-
-func fetchUsername() (string, error) {
-	url := "http://de.yuntech.poc.com/web/login/begin"
-	reqBody := []byte(`{"key":"value"}`)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch username: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// 使用 io.ReadAll 代替 ioutil.ReadAll
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %v", err)
-	}
-
-	var usernameResp UsernameResponse
-	if err := json.Unmarshal(body, &usernameResp); err != nil {
-		return "", fmt.Errorf("failed to parse username response: %v", err)
-	}
-
-	return usernameResp.Username, nil
+type ConnectingRP struct {
+	IPAddress string `json:"ip_address" binding:"required"`
+	Port      int    `json:"port" binding:"required"`
+	Username  string `json:"username" binding:"required"`
 }
 
 func wsHandle(c *gin.Context) {
@@ -63,63 +23,88 @@ func wsHandle(c *gin.Context) {
 		err     error
 	)
 
-	user, err = fetchUsername()
-	if err != nil {
-		fmt.Println("Error fetching username:", err)
-		// 可以考慮在這裡返回錯誤訊息給 WebSocket 客戶端
-		return
-	}
+	var (
+		//Allow cross-domain
+		upgrader = websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		}
+		user           = savedRP.Username
+		host           = savedRP.IPAddress
+		port           = 22              // 目標主機端口
+		privateKeyPath = "./cert/id_rsa" // 私鑰文件的路徑
+	)
 
-	// Upgrade Gin context to WebSocket connection
+	// 升級 Gin context 為 WebSocket 連接
 	conn, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
-	// Create ssh client
-	if client, err = component.CreateSSHClient(user, password, host, port); err != nil {
+	// 使用私鑰創建 SSH 客戶端
+	client, err = component.CreateSSHClientWithKey(user, host, port, privateKeyPath)
+	if err != nil {
 		component.WsSendText(conn, []byte(err.Error()))
 		return
 	}
 	defer client.Close()
 
-	// Connect to ssh
-	if sshConn, err = component.NewSSHConnect(client); err != nil {
+	// 創建 SSH 連接
+	sshConn, err = component.NewSSHConnect(client)
+	if err != nil {
 		component.WsSendText(conn, []byte(err.Error()))
 		return
 	}
 
+	// 啟動 SSH 輸出和接收處理
 	quit := make(chan int)
 	go sshConn.Output(conn, quit)
 	go sshConn.Recv(conn, quit)
 	<-quit
 }
-func home(w http.ResponseWriter, r *http.Request) {
-	temp, e := template.ParseFiles("./template/index.html")
-	if e != nil {
-		fmt.Println(e)
-	}
-	temp.Execute(w, nil)
-	return
-}
+
+var savedRP ConnectingRP
 
 func SSHRoutes(c *gin.Engine) {
 
-	proxyGrop := c.Group("/sshpage")
+	proxyGroup := c.Group("/RemotePage")
 
-	proxyGrop.Static("/static/css", "./static/css")
-	proxyGrop.Static("/static/js", "./static/js")
-	proxyGrop.Static("/static/img", "./static/img")
+	proxyGroup.Static("/static/css", "./static/css")
+	proxyGroup.Static("/static/js", "./static/js")
+	proxyGroup.Static("/static/img", "./static/img")
 
-	proxyGrop.GET("/", func(c *gin.Context) {
+	proxyGroup.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "sshindex.html", nil)
 	})
 
-	proxyGrop.GET("/ssh", func(c *gin.Context) {
+	proxyGroup.POST("/", func(c *gin.Context) {
+		var req ConnectingRP
+
+		// 綁定 JSON 資料到 ConnectRequest 結構體
+		if err := c.ShouldBindJSON(&req); err != nil {
+			// 如果出現錯誤，回傳錯誤訊息
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		savedRP = req
+		// 回傳成功訊息
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Connection successful",
+		})
+	})
+
+	proxyGroup.GET("/ssh", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "ssh.html", nil)
 	})
 
-	proxyGrop.GET("/ws/v1", wsHandle)
+	proxyGroup.GET("/ssh/windows", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "rdpindex.html", nil)
+	})
 
+	// 新增處理 RDP WebSocket 請求的路由
+	proxyGroup.GET("/ws/rdp", RdpProxy)
+
+	proxyGroup.GET("/ws/v1", wsHandle)
 }

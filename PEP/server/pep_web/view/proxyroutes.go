@@ -43,21 +43,6 @@ func ProxyRegisterRoutes(r *gin.Engine) {
 		c.JSON(http.StatusOK, gin.H{"success": true, "proxyHost": newProxyHost})
 	})
 
-	/*
-		proxyGrop.DELETE("/delete-proxy-host/:id", func(c *gin.Context) {
-			id := c.Param("id")
-			var proxyHost ProxyHost
-			/*
-			if err := db.First(&proxyHost, id).Error; err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Record not found"})
-				return
-			}
-
-			db.Delete(&proxyHost)
-
-			c.JSON(http.StatusOK, gin.H{"success": true, "message": "Record deleted"})
-		})
-	*/
 	proxyGrop.GET("/logs", func(c *gin.Context) {
 		data, err := ioutil.ReadFile("../index/app.log")
 		if err != nil {

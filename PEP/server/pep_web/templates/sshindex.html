@@ -12,13 +12,12 @@
             margin-top: 0px;
         }
 
-        
         .navbar {
             background-color: #19212A; 
             color: white;
             padding: 18px;
             display: flex;
-            justify-content: space-between; /* 左右對齊 */
+            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
@@ -30,79 +29,70 @@
             font-weight: bold;
         }
 
-       
         .user-menu {
             position: relative;
-            /* top: 10px; left: 10px; */
             display: inline-block;
-          }
+        }
           
-          .user-icon {
+        .user-icon {
             cursor: pointer;
-            width: 50px; /* 根據需要調整大小 */
-          }
+            width: 50px;
+        }
           
-          .user-dropdown {
+        .user-dropdown {
             display: none;
             position: absolute;
             background-color: #f9f9f9;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
-          }
+        }
           
-          .user-menu:hover .user-dropdown {
+        .user-menu:hover .user-dropdown {
             margin: 5% -200%;
             display: block;
-          }
+        }
           
-          .user-info p {
+        .user-info p {
             color: black;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
-          }
+        }
           
-          .user-info button {
+        .user-info button {
             background: none;
             border: none;
             color: #408080;
             padding: 12px 16px;
-            text-align: auto;
-            text-decoration: none;
             display: block;
             width: 100%;
-            border-top: 1px solid #ccc; /* 可選 */
+            border-top: 1px solid #ccc;
           }
           
           .user-info button:hover {
-            background-color: #f1f1f1; /* 淺灰色 */
+            background-color: #f1f1f1;
           }
-          
-        
 
         h1 {
-            font-size: 1.6rem; /* 調整字體大小 */
-            text-align: left; /* 設置靠左對齊 */
-            margin-left: 26px; /* 增加左邊距離，避免緊貼邊緣 */
+            font-size: 1.6rem;
+            text-align: left;
+            margin-left: 26px;
             margin-bottom: 10px;
         }
 
-        /* 調整 <h2> 標題的間距 */
         h2 {
-            font-size: 2 rem; /* 調整字體大小 */
-            text-align: left; /* 設置靠左對齊 */
+            font-size: 2rem;
+            text-align: left;
             margin-left: 25px;
             margin-bottom: 10px;
         }
 
-        /* 使用 Grid 佈局來控制卡片的排列 */
         .container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 設定兩個等寬的區塊，讓內容並排顯示 */
-            gap: 25px; /* 區塊之間的間距 */
-            max-width: 100%; /* 設定最大寬度，讓區塊不會太分散 1500px */
-            margin: left; /* 讓容器置中 auto */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            max-width: 100%;
             padding: 20px;
         }
 
@@ -112,18 +102,21 @@
             border-radius: 8px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 陰影 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden; /* 隱藏多餘的內容 */            
+            transition: max-height 0.5s ease;
         }
 
         .card img {
             width: 60px;
             height: 60px;
-            margin-bottom: 15px; /* 圖片下方增加間距 */
+            margin-bottom: 15px;
         }
 
         .card h3 {
             font-size: 1.2rem;
-            margin-bottom: 15px; /* 卡片標題與內容間的間距 */
+            margin-bottom: 15px;
         }
 
         .card button {
@@ -131,90 +124,144 @@
             border: none;
             background-color: #36475a;
             color: #fff;
-            border-radius: 5px; /* 按鈕圓角 */
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
         }
 
         .card button:hover {
-            background-color: #babcbf; /* 滑鼠懸停時按鈕顏色改變 */
+            background-color: #babcbf;
         }
 
-        /* 全局按鈕樣式 */
         button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
         }
+
+        /* 顯示更多內容時的樣式 */
+        .extra-content {
+            display: block;
+            padding: 2px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ddd;
+        }
+       .textcard {
+            display: flex;
+            gap: 20px;            
+            align-items: flex-start; 
+       }
     </style>
 </head>
 <body>
+
+    <script>
+        function Init() {
+            const username = localStorage.getItem('username');
+            const id = localStorage.getItem('user_id');
+            
+            if (username) {
+                document.getElementById('usernameDisplay').textContent = username;
+            } else {
+                console.log('No username found in localStorage.');
+                window.location.href = "/";
+            }
+
+            const url = "https://de.yuntech.poc.com:3443/maintained-computers/allow/" + id ;
+
+            fetch(url).then(res => res.json()).then(data => {
+                const container = document.getElementById('computers-container');
+                container.innerHTML = '';
+
+
+                data.forEach(computer => {
+                    // 建立卡片的HTML結構
+                    const cardHTML = `
+                      <div class="card" data-info="IP: ${computer.ip_address}, Computer ID: ${computer.alias_name}, Port: ${computer.port}">
+                        <img src="/static/img/ssh.png" alt="SSH Icon">
+                        <h3>${computer.alias_name}</h3>
+                        <button onclick="connectRP('${computer.ip_address}' , '${computer.port}' , '${username}')">Connect</button>
+                        <div class="extra-content">
+                          <p>IP: ${computer.ip_address}</p>
+                          <p>Computer ID: ${computer.alias_name}</p>
+                          <p>Port: ${computer.port}</p>
+                          <p>Operating System: ${computer.os_type}</p>
+                        </div>
+                      </div>
+                    `;
+                    // 將卡片加入容器
+                    container.insertAdjacentHTML('beforeend', cardHTML);
+                });
+            })
+        }
+
+        window.onload = Init;
+    </script>
     
-    <!-- 藍色導航欄 -->
     <header class="navbar">
         <div class="logo">My Resources</div>
-
-
         <div class="user-menu">
             <img src="/static/img/user.png" alt="User" class="user-icon">
             <div class="user-dropdown">
-              <div class="user-info">
-                <p>Hi, User Name</p>
-                <button onclick=logoutFunction()>Log Out</button>
-              </div>
+                <div class="user-info">
+                    <p>Hi, <span id="usernameDisplay">User Name</span></p>
+                    <button onclick="logoutFunction()">Log Out</button>
+                </div>
             </div>
-          </div>
-          
-
-    
+        </div>
     </header>
 
-
-    
     <h1>Available Services</h1>
-    
-   
-    <!-- 修正容器的標籤，使之正確包含所有卡片元素 -->
-    <div class="container">
-        <div class="card">
+
+    <div class="container" id="computers-container"></div>
+
+    <h1> Test (測試用途，讓連線可以成功) </h1>
+    <div class="textcard">
+        <div class="card" data-info="IP: 192.168.50.223, Computer ID: YUNTECH_SSH Server, Port: 22">
             <img src="/static/img/ssh.png" alt="SSH Icon">
             <h3>YUNTECH_SSH Server</h3>
             <button onclick="window.location.href='ssh'">Connect</button>
+            <div >
+                <p>IP: 192.168.50.223</p>
+                <p>Computer ID: YUNTECH01</p>
+                <p>Port: 22</p>
+            </div>
         </div>
-        
-        <div class="card">
+    
+        <div class="card" data-info="IP: 192.168.1.11, Computer ID: YUNTECH02, Port: 3389">
             <img src="/static/img/rdp.png" alt="Windows Icon">
             <h3>YUNTECH_Remote Desktop</h3>
             <button onclick="window.location.href='ssh/windows'">Connect</button>
+            <div >
+                <p>IP: 192.168.1.11</p>
+                <p>Computer ID: YUNTECH02</p>
+                <p>Port: 3389</p>
+            </div>
         </div>
-        <div class="card">
-            <img src="/static/img/ssh.png" alt="SSH Icon">
-            <h3>TEST_SSH Server</h3>
-            <button onclick="window.location.href='ssh'">Connect</button>
-        </div>
-        
-        <div class="card">
-            <img src="/static/img/rdp.png" alt="Windows Icon">
-            <h3>TEST_Remote Desktop</h3>
-            <button onclick="window.location.href='ssh/windows'">Connect</button>
-        </div>
-
-        <div class="card">
-            <img src="/static/img/RP.png" alt="Windows Icon">
-            <h3>RP</h3>
-            <button onclick="window.location.href='ssh/windows'">Connect</button>
-        </div>
-
-
     </div>
+   
     <script>
+        // 傳送連線資訊給後端儲存
+        async function  connectRP(ip_address , port  , username){
+           
+            const requestOptions = {
+                method: "POST"
+              };
+            const data = JSON.stringify({
+                "ip_address": ip_address,
+                "port": 22,
+                "username": username
+              });
+            await fetch("https://ag.yuntech.poc.com:8080/RemotePage" ,{ method: "POST" , body:data});
+            window.location.href = "/RemotePage/ssh/"
+        }
+
         function logoutFunction() {
-            alert('You have been logged out.'); // 顯示登出訊息
-            window.location = 'https://192.168.50.98:8080/login';
+            localStorage.removeItem('username');
+            alert('You have been logged out.');
+            window.location = 'https://ag.yuntech.poc.com:8080';
         }
     </script>
 
 </body>
-
-
 </html>

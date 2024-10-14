@@ -42,7 +42,7 @@
         term.open(document.getElementById('terminal'));
 
         //websocket open
-        var socket = new WebSocket('wss://ag.yuntech.poc.com:8080/sshpage/ws/v1');
+        var socket = new WebSocket('wss://ag.yuntech.poc.com:8080/RemotePage/ws/v1');
         socket.onopen = function () {
             if (term._initialized) {
                 return;
@@ -61,10 +61,6 @@
             term.write(msg.data);
         };
 
-        /*term.prompt = () => {
-
-        };*/
-
         term.onKey(e => {
             const printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
 
@@ -82,12 +78,6 @@
                 term.write(e.key);
             }
         });
-
-        /*term.onData(e => {
-                console.log("111111111111111111111")
-                console.log(e)
-        })*/
-
 
         function runFakeTerminal() {
             if (term._initialized) {

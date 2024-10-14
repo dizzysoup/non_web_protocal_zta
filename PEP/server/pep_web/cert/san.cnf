@@ -13,7 +13,7 @@ OU           = IT Department       # 部門
 CN           = ag.yuntech.poc.com  # Common Name，主域名
 
 [ v3_req ]
-keyUsage = keyEncipherment, dataEncipherment
+keyUsage = digitalSignature, keyEncipherment, dataEncipherment
 extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
